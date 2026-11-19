@@ -1,0 +1,10 @@
+---
+// src/layouts/Frame.astro
+import Base from './Base.astro';
+---
+<Base {...Astro.props}>
+  <div class="relative mx-auto max-w-5xl p-8 md:p-12">
+    <div class="frame-border" aria-hidden="true"></div>
+    <slot />
+  </div>
+</Base>
