@@ -1,7 +1,79 @@
 @import 'tailwindcss';
 @plugin "@tailwindcss/typography";
 
+/*
+ * Retro-futurist palette. Each scale keeps one OKLCH hue and steps through lightness.
+ * Text pairings that pass 4.5:1:
+ *   on void-950:  phosphor-300/400/500, nebula-300/400/500, ember-300/400/500, paper-50 to 500
+ *   on paper-100: nebula-600+, ember-600+, phosphor-700+, void-500+
+ */
 @theme {
-  --color-brand: #c2410c;
+  --color-brand: var(--color-ember-500);
+
+  /* void: near-black with a faint green cast, for dark mode surfaces */
+  --color-void-50: #eef8f3;
+  --color-void-100: #dee7e2;
+  --color-void-200: #c7d0cc;
+  --color-void-300: #a7b0ac;
+  --color-void-400: #808984;
+  --color-void-500: #5d6561;
+  --color-void-600: #424a46;
+  --color-void-700: #2b322f;
+  --color-void-800: #1a211e;
+  --color-void-900: #0d1310;
+  --color-void-950: #060c09;
+
+  /* phosphor: terminal green, for dark mode text and accents */
+  --color-phosphor-50: #e4fde8;
+  --color-phosphor-100: #c5f7ce;
+  --color-phosphor-200: #8eeea4;
+  --color-phosphor-300: #36dd71;
+  --color-phosphor-400: #00c15a;
+  --color-phosphor-500: #07a44c;
+  --color-phosphor-600: #04853c;
+  --color-phosphor-700: #006b2e;
+  --color-phosphor-800: #015122;
+  --color-phosphor-900: #013916;
+  --color-phosphor-950: #01220a;
+
+  /* paper: warm off-white, for light mode surfaces */
+  --color-paper-50: #fefaf0;
+  --color-paper-100: #f7f1e5;
+  --color-paper-200: #eae4d7;
+  --color-paper-300: #d6d0c4;
+  --color-paper-400: #b6b0a4;
+  --color-paper-500: #918c80;
+  --color-paper-600: #716b60;
+  --color-paper-700: #544f45;
+  --color-paper-800: #3c372d;
+  --color-paper-900: #28231a;
+  --color-paper-950: #1a150d;
+
+  /* nebula: purple, the light mode counterpart to phosphor */
+  --color-nebula-50: #f6f3ff;
+  --color-nebula-100: #ebe3fe;
+  --color-nebula-200: #dbcafe;
+  --color-nebula-300: #c7a8fe;
+  --color-nebula-400: #b483ff;
+  --color-nebula-500: #9e64ee;
+  --color-nebula-600: #824aca;
+  --color-nebula-700: #6938a7;
+  --color-nebula-800: #502882;
+  --color-nebula-900: #38185f;
+  --color-nebula-950: #230741;
+
+  /* ember: burnt orange, the brand accent in both modes */
+  --color-ember-50: #fef2ee;
+  --color-ember-100: #fee1d6;
+  --color-ember-200: #fec5b0;
+  --color-ember-300: #fe9e79;
+  --color-ember-400: #ee7d4f;
+  --color-ember-500: #d6612f;
+  --color-ember-600: #b44815;
+  --color-ember-700: #933604;
+  --color-ember-800: #712702;
+  --color-ember-900: #511900;
+  --color-ember-950: #320d00;
+
   --font-sans: 'Inter', system-ui, sans-serif;
 }

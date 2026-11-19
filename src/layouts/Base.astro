@@ -10,7 +10,7 @@ const { title, description } = Astro.props;
     <meta name="description" content={description} />
     <link rel="canonical" href={new URL(Astro.url.pathname, Astro.site)} />
   </head>
-  <body class="bg-white text-slate-900 dark:bg-slate-950 dark:text-slate-100">
+  <body class="bg-paper-100 text-void-900 dark:bg-void-950 dark:text-phosphor-300">
     <a href="#main" class="sr-only focus:not-sr-only">Skip to content</a>
     <main id="main"><slot /></main>
   </body>
