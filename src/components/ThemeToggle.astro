@@ -1,7 +1,8 @@
 ---
 // Light/dark toggle, rendered by Frame in the site footer (the frame's bottom inset, on the
-// left). The theme follows prefers-color-scheme until the visitor picks one; the choice is
-// saved to localStorage and applied before paint by the inline script in Base.astro.
+// left). The theme follows prefers-color-scheme until the visitor picks the other one; that
+// choice is saved to localStorage and applied before paint by the inline script in Base.astro.
+// Toggling back to the OS theme clears the saved choice.
 // It starts hidden and the script reveals it, so it never shows up without JS to drive it.
 const focusClass =
   'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ember-500';
@@ -35,11 +36,16 @@ const focusClass =
   const isDark = () => root.dataset.theme === 'dark' || (!root.dataset.theme && systemDark.matches);
   const sync = () => button.setAttribute('aria-pressed', String(isDark()));
 
+  // Picking the theme the OS already uses clears the override, so the site goes back to
+  // following prefers-color-scheme (and any scheduled OS switching) instead of pinning it.
   button.addEventListener('click', () => {
     const theme = isDark() ? 'light' : 'dark';
-    root.dataset.theme = theme;
+    const matchesSystem = (theme === 'dark') === systemDark.matches;
+    if (matchesSystem) delete root.dataset.theme;
+    else root.dataset.theme = theme;
     try {
-      localStorage.setItem('theme', theme);
+      if (matchesSystem) localStorage.removeItem('theme');
+      else localStorage.setItem('theme', theme);
     } catch {}
     sync();
   });
