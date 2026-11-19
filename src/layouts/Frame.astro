@@ -8,7 +8,8 @@ import ThemeToggle from '../components/ThemeToggle.astro';
   <SiteNav slot="header" />
   <div class="frame">
     <div class="frame-border" aria-hidden="true"></div>
-    <div class="mx-auto max-w-5xl">
+    <!-- Fills the frame's height, so a page can centre content vertically with flex-1 -->
+    <div class="mx-auto flex w-full max-w-5xl flex-1 flex-col">
       <slot />
     </div>
   </div>
