@@ -1,6 +1,28 @@
 ---
 import Frame from '../layouts/Frame.astro';
 ---
-<Frame title="About | Alex Baulderstone" description="About: Alex Baulderstone.">
-	<h1 class="text-center text-2xl leading-normal md:text-[2rem]">About</h1>
+<Frame title="About | Alex Baulderstone" description="About: Alex Baulderstone." panels>
+	<!--
+		Mobile: one column, with section 3 taking the spare height.
+		Desktop: a title bar, then a narrow left column (1, 2, 4) beside section 3.
+		Lines draw in order: mobile top to bottom; desktop title, divider, then the left column's
+		lines growing out of the divider.
+	-->
+	<div class="panels grid-rows-[auto_auto_auto_1fr_auto] md:grid-cols-[minmax(14rem,1fr)_3fr] md:grid-rows-[auto_1fr_1fr_1fr]">
+		<div class="edge-b p-5 md:col-span-2 md:p-8">
+			<h1 class="text-center text-2xl leading-normal md:text-[2rem]">About</h1>
+		</div>
+		<section class="edge-b p-5 [--edge-delay:150ms] md:p-8 md:[--edge-delay:750ms] md:[--edge-origin:right]">
+			<!-- 1 -->
+		</section>
+		<section class="edge-b p-5 [--edge-delay:300ms] md:p-8 md:[--edge-delay:900ms] md:[--edge-origin:right]">
+			<!-- 2 -->
+		</section>
+		<section class="p-5 [--edge-delay:450ms] max-md:edge-b md:col-start-2 md:row-span-3 md:row-start-2 md:edge-l md:p-8 md:[--edge-delay:400ms]">
+			<!-- 3 -->
+		</section>
+		<section class="p-5 md:p-8">
+			<!-- 4 -->
+		</section>
+	</div>
 </Frame>
