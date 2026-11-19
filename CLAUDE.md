@@ -17,7 +17,7 @@ Requires Node >= 22.23.4 (Astro 7).
 
 A personal portfolio site (`https://alexbaulderstone.com`), built as a static Astro 7 site with Tailwind CSS v4.
 
-- **Layout chain**: pages → `src/layouts/Frame.astro` (centered `max-w-5xl` container with a decorative `.frame-border` overlay) → `src/layouts/Base.astro` (the HTML shell). Pages pass `title` and `description` props down through `Frame`. `Base` uses them for `<title>`, the meta description and a canonical URL built from `Astro.site`. `Base` also adds the skip link and the `<main id="main">` wrapper, so pages shouldn't add their own `<main>`.
+- **Layout chain**: pages → `src/layouts/Frame.astro` (a viewport-inset `.frame` box with a thick `.frame-border` overlay, styled in `global.css`; content sits in a centered `max-w-5xl` column) → `src/layouts/Base.astro` (the HTML shell). Pages pass `title` and `description` props down through `Frame`. `Base` uses them for `<title>`, the meta description and a canonical URL built from `Astro.site`. `Base` also adds the skip link and the `<main id="main">` wrapper, so pages shouldn't add their own `<main>`.
 - **Styling**: Tailwind v4 is set up through the Vite plugin, not `@astrojs/tailwind`, and there is no `tailwind.config.js`. All theme config lives in CSS in `src/styles/global.css` (`@theme` tokens such as `--color-brand` and `--font-sans`, plus `@plugin "@tailwindcss/typography"`). `Base.astro` is the only place that imports it. Dark mode uses Tailwind's default `dark:` variant, which follows `prefers-color-scheme`.
 - **Routing/SEO**: `trailingSlash: 'always'` is set in `astro.config.mjs`, so internal links need trailing slashes (`/about/`, not `/about`). `@astrojs/sitemap` generates the sitemap from `site`.
 
@@ -31,5 +31,4 @@ A personal portfolio site (`https://alexbaulderstone.com`), built as a static As
 
 ## Known gaps
 
-- `.frame-border` (used in `Frame.astro`) has no CSS defined yet.
 - The `Inter` font is referenced in `--font-sans` but nothing loads it.

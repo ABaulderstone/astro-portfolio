@@ -77,3 +77,34 @@
 
   --font-sans: 'Inter', system-ui, sans-serif;
 }
+
+/*
+ * Page frame: a thick border inset from the viewport. It fills at least the screen
+ * (so it's a tall rectangle on phones and a wide one on desktop) and grows with content.
+ */
+@layer components {
+  .frame {
+    --frame-inset: 0.75rem;
+    --frame-width: 0.5rem;
+    position: relative;
+    margin: var(--frame-inset);
+    min-height: calc(100dvh - 2 * var(--frame-inset));
+    padding: calc(var(--frame-width) + 1.25rem);
+
+    @variant md {
+      --frame-inset: clamp(2.5rem, 7vw, 6rem);
+      padding: calc(var(--frame-width) + 3rem);
+    }
+  }
+
+  .frame-border {
+    position: absolute;
+    inset: 0;
+    border: var(--frame-width) solid var(--color-nebula-600);
+    pointer-events: none;
+
+    @variant dark {
+      border-color: var(--color-phosphor-400);
+    }
+  }
+}
