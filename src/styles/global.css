@@ -2,6 +2,21 @@
 @plugin "@tailwindcss/typography";
 
 /*
+ * Dark mode follows prefers-color-scheme unless <html data-theme="light|dark"> overrides it
+ * (set by ThemeToggle).
+ */
+@custom-variant dark {
+  &:where([data-theme='dark'], [data-theme='dark'] *) {
+    @slot;
+  }
+  @media (prefers-color-scheme: dark) {
+    &:where(:root:not([data-theme='light']), :root:not([data-theme='light']) *) {
+      @slot;
+    }
+  }
+}
+
+/*
  * Retro-futurist palette. Each scale keeps one OKLCH hue and steps through lightness.
  * Text pairings that pass 4.5:1:
  *   on void-950:  phosphor-300/400/500, nebula-300/400/500, ember-300/400/500, paper-50 to 500
@@ -79,13 +94,15 @@
 }
 
 /*
- * Page frame: a thick border inset from the viewport. It fills at least the screen
- * (so it's a tall rectangle on phones and a wide one on desktop) and grows with content.
+ * Page frame: a thick border inset from the viewport. It fills the screen (so it's a
+ * tall rectangle on phones and a wide one on desktop). Content always fits inside it;
+ * if a page outgrows it, it will scroll within the frame rather than grow the page.
  * On mobile the bottom inset is larger to leave room for the menu button; on desktop
  * the nav sits in the top inset instead.
  */
 @layer base {
   :root {
+    color-scheme: light dark;
     --frame-inset: 0.75rem;
     --frame-width: 0.5rem;
     --nav-toggle-size: 3.5rem;
@@ -94,6 +111,28 @@
     @variant md {
       --frame-inset: clamp(2.5rem, 7vw, 6rem);
       --frame-inset-bottom: var(--frame-inset);
+    }
+
+    &[data-theme='light'] {
+      color-scheme: light;
+    }
+    &[data-theme='dark'] {
+      color-scheme: dark;
+    }
+  }
+
+  /* Accent colour: nebula in light mode. Dark mode inherits the body's phosphor text. */
+  a,
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    color: var(--color-nebula-600);
+
+    @variant dark {
+      color: inherit;
     }
   }
 }

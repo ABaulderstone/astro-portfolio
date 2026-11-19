@@ -2,6 +2,7 @@
 // src/layouts/Frame.astro
 import Base from './Base.astro';
 import SiteNav from '../components/SiteNav.astro';
+import ThemeToggle from '../components/ThemeToggle.astro';
 ---
 <Base {...Astro.props}>
   <SiteNav slot="header" />
@@ -10,5 +11,6 @@ import SiteNav from '../components/SiteNav.astro';
     <div class="mx-auto max-w-5xl">
       <slot />
     </div>
+    <ThemeToggle />
   </div>
 </Base>

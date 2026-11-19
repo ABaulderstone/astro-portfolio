@@ -17,9 +17,9 @@ Requires Node >= 22.23.4 (Astro 7).
 
 A personal portfolio site (`https://alexbaulderstone.com`), built as a static Astro 7 site with Tailwind CSS v4.
 
-- **Layout chain**: pages → `src/layouts/Frame.astro` (a viewport-inset `.frame` box with a thick `.frame-border` overlay, styled in `global.css`; content sits in a centered `max-w-5xl` column) → `src/layouts/Base.astro` (the HTML shell). Pages pass `title` and `description` props down through `Frame`. `Base` uses them for `<title>`, the meta description and a canonical URL built from `Astro.site`. `Base` also adds the skip link and the `<main id="main">` wrapper, so pages shouldn't add their own `<main>`. `Frame` renders `src/components/SiteNav.astro` into `Base`'s named `header` slot, outside `<main>`. The frame insets are CSS variables on `:root` in `global.css`, so the nav and the frame stay aligned. On mobile the bottom inset is taller to leave room for the fixed menu button.
+- **Layout chain**: pages → `src/layouts/Frame.astro` (a viewport-inset `.frame` box with a thick `.frame-border` overlay that fills the screen; content always fits inside it, and anything taller will scroll within the frame rather than grow the page; styled in `global.css`; content sits in a centered `max-w-5xl` column) → `src/layouts/Base.astro` (the HTML shell). Pages pass `title` and `description` props down through `Frame`. `Base` uses them for `<title>`, the meta description and a canonical URL built from `Astro.site`. `Base` also adds the skip link and the `<main id="main">` wrapper, so pages shouldn't add their own `<main>`. `Frame` renders `src/components/SiteNav.astro` into `Base`'s named `header` slot, outside `<main>`. The frame insets are CSS variables on `:root` in `global.css`, so the nav and the frame stay aligned. On mobile the bottom inset is taller to leave room for the fixed menu button.
 - **Mobile nav**: the drawer uses the Popover API (`popover` / `popovertarget`) with CSS `@starting-style` transitions, so it needs no client JS.
-- **Styling**: Tailwind v4 is set up through the Vite plugin, not `@astrojs/tailwind`, and there is no `tailwind.config.js`. All theme config lives in CSS in `src/styles/global.css` (`@theme` tokens such as `--color-brand` and `--font-sans`, plus `@plugin "@tailwindcss/typography"`). `Base.astro` is the only place that imports it. Dark mode uses Tailwind's default `dark:` variant, which follows `prefers-color-scheme`.
+- **Styling**: Tailwind v4 is set up through the Vite plugin, not `@astrojs/tailwind`, and there is no `tailwind.config.js`. All theme config lives in CSS in `src/styles/global.css` (`@theme` tokens such as `--color-brand` and `--font-sans`, plus `@plugin "@tailwindcss/typography"`). `Base.astro` is the only place that imports it. The `dark:` variant is redefined with `@custom-variant` in `global.css`: it follows `prefers-color-scheme` unless `<html data-theme="light|dark">` overrides it. `src/components/ThemeToggle.astro` (rendered by `Frame`, in the frame's bottom-left inset) sets that attribute and saves it to localStorage, and an inline script in `Base`'s `<head>` reapplies it before paint.
 - **Routing/SEO**: `trailingSlash: 'always'` is set in `astro.config.mjs`, so internal links need trailing slashes (`/about/`, not `/about`). `@astrojs/sitemap` generates the sitemap from `site`.
 
 ## Rules
@@ -29,6 +29,7 @@ A personal portfolio site (`https://alexbaulderstone.com`), built as a static As
 - SEO: every page needs title, description, canonical URL
 - Don't animate main content opacity (hurts LCP); animate the border only
 - Zero client JS unless there's a clear reason
+- Light mode accent: icons (menu, theme toggle etc.), links and headings are nebula (`nebula-600`); body text colour is still undecided
 
 ## Known gaps
 
