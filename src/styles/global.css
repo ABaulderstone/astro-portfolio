@@ -81,18 +81,32 @@
 /*
  * Page frame: a thick border inset from the viewport. It fills at least the screen
  * (so it's a tall rectangle on phones and a wide one on desktop) and grows with content.
+ * On mobile the bottom inset is larger to leave room for the menu button; on desktop
+ * the nav sits in the top inset instead.
  */
-@layer components {
-  .frame {
+@layer base {
+  :root {
     --frame-inset: 0.75rem;
     --frame-width: 0.5rem;
-    position: relative;
-    margin: var(--frame-inset);
-    min-height: calc(100dvh - 2 * var(--frame-inset));
-    padding: calc(var(--frame-width) + 1.25rem);
+    --nav-toggle-size: 3.5rem;
+    --frame-inset-bottom: calc(var(--nav-toggle-size) + 2 * var(--frame-inset));
 
     @variant md {
       --frame-inset: clamp(2.5rem, 7vw, 6rem);
+      --frame-inset-bottom: var(--frame-inset);
+    }
+  }
+}
+
+@layer components {
+  .frame {
+    position: relative;
+    margin: var(--frame-inset) var(--frame-inset) var(--frame-inset-bottom);
+    min-height: calc(100dvh - var(--frame-inset) - var(--frame-inset-bottom));
+    padding: calc(var(--frame-width) + 1.25rem);
+
+    @variant md {
+      margin-top: 0;
       padding: calc(var(--frame-width) + 3rem);
     }
   }
@@ -105,6 +119,46 @@
 
     @variant dark {
       border-color: var(--color-phosphor-400);
+    }
+  }
+
+  /* Mobile nav drawer: a full-screen popover that slides in from the right. */
+  .nav-drawer {
+    position: fixed;
+    inset: 0;
+    margin: 0;
+    width: 100%;
+    max-width: none;
+    height: 100dvh;
+    max-height: none;
+    border: 0;
+    background: var(--color-paper-100);
+    color: var(--color-void-900);
+    transform: translateX(100%);
+    transition:
+      transform 300ms ease-out,
+      overlay 300ms allow-discrete,
+      display 300ms allow-discrete;
+
+    &:popover-open {
+      transform: translateX(0);
+
+      @starting-style {
+        transform: translateX(100%);
+      }
+    }
+
+    @variant dark {
+      background: var(--color-void-950);
+      color: var(--color-phosphor-300);
+    }
+
+    @variant md {
+      display: none;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      transition: none;
     }
   }
 }

@@ -1,0 +1,73 @@
+---
+// Desktop: inline nav in the frame's top inset. Mobile: a fixed menu button in the
+// bottom-right that opens a slide-in drawer (popover API, so no client JS).
+const links = [
+  { href: '/about/', label: 'About' },
+  { href: '/blog/', label: 'Blog' },
+  { href: '/projects/', label: 'Projects' },
+  { href: '/contact/', label: 'Contact' },
+];
+
+const path = Astro.url.pathname;
+const isCurrent = (href: string) => path.startsWith(href);
+
+const linkClass =
+  'underline-offset-4 hover:text-ember-600 hover:underline aria-[current=page]:underline dark:hover:text-ember-400';
+const focusClass =
+  'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ember-500';
+---
+<header class="md:flex md:h-(--frame-inset) md:items-center md:px-(--frame-inset)">
+  <nav aria-label="Main" class="hidden w-full items-center justify-end md:flex">
+    <ul class="flex gap-8">
+      {links.map(({ href, label }) => (
+        <li>
+          <a href={href} class:list={[linkClass, focusClass]} aria-current={isCurrent(href) ? 'page' : undefined}>
+            {label}
+          </a>
+        </li>
+      ))}
+    </ul>
+  </nav>
+
+  <button
+    type="button"
+    popovertarget="nav-drawer"
+    aria-label="Open menu"
+    class:list={[
+      'fixed right-(--frame-inset) bottom-(--frame-inset) z-10 flex size-(--nav-toggle-size) items-center justify-center text-phosphor-600 md:hidden dark:text-phosphor-400',
+      focusClass,
+    ]}
+  >
+    <svg aria-hidden="true" viewBox="0 0 24 24" class="size-7" fill="none" stroke="currentColor" stroke-width="2.5">
+      <path d="M3 6h18M3 12h18M3 18h18" />
+    </svg>
+  </button>
+
+  <div id="nav-drawer" popover class="nav-drawer p-6">
+    <div class="flex justify-end">
+      <button
+        type="button"
+        popovertarget="nav-drawer"
+        popovertargetaction="hide"
+        aria-label="Close menu"
+        class:list={['flex size-10 items-center justify-center', focusClass]}
+      >
+        <svg aria-hidden="true" viewBox="0 0 24 24" class="size-7" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M5 5l14 14M19 5L5 19" />
+        </svg>
+      </button>
+    </div>
+    <nav aria-label="Main">
+      <ul class="mt-8 flex flex-col gap-6 text-2xl">
+        <li><a href="/" class:list={[linkClass, focusClass]} aria-current={path === '/' ? 'page' : undefined}>Home</a></li>
+        {links.map(({ href, label }) => (
+          <li>
+            <a href={href} class:list={[linkClass, focusClass]} aria-current={isCurrent(href) ? 'page' : undefined}>
+              {label}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  </div>
+</header>

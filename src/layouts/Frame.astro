@@ -1,8 +1,10 @@
 ---
 // src/layouts/Frame.astro
 import Base from './Base.astro';
+import SiteNav from '../components/SiteNav.astro';
 ---
 <Base {...Astro.props}>
+  <SiteNav slot="header" />
   <div class="frame">
     <div class="frame-border" aria-hidden="true"></div>
     <div class="mx-auto max-w-5xl">
