@@ -11,6 +11,12 @@ import ThemeToggle from '../components/ThemeToggle.astro';
     <div class="mx-auto max-w-5xl">
       <slot />
     </div>
-    <ThemeToggle />
   </div>
+  <!-- Sits in the frame's bottom inset: the negative margin cancels the frame's bottom margin -->
+  <footer
+    slot="footer"
+    class="-mt-(--frame-inset-bottom) flex h-(--frame-inset-bottom) items-center px-(--frame-inset)"
+  >
+    <ThemeToggle />
+  </footer>
 </Base>
