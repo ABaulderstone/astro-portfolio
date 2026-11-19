@@ -18,7 +18,22 @@ const focusClass =
   'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ember-500';
 ---
 <header class="md:flex md:h-(--frame-inset) md:items-center md:px-(--frame-inset)">
-  <nav aria-label="Main" class="hidden w-full items-center justify-end md:flex">
+  <nav aria-label="Main" class="hidden w-full items-center justify-between md:flex">
+    <!-- Icon-only, so the accessible name comes from aria-label. The current page gets a bar
+         under the icon, matching the underline on the text links. -->
+    <a
+      href="/"
+      aria-label="Home"
+      aria-current={path === '/' ? 'page' : undefined}
+      class:list={[
+        'flex size-10 items-center justify-center border-b-2 border-transparent hover:text-ember-600 aria-[current=page]:border-current dark:text-phosphor-400 dark:hover:text-ember-400',
+        focusClass,
+      ]}
+    >
+      <svg aria-hidden="true" viewBox="0 0 24 24" class="size-7" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round">
+        <path d="M3 11l9-8 9 8M5 9.5V21h5v-6h4v6h5V9.5" />
+      </svg>
+    </a>
     <ul class="flex gap-10">
       {links.map(({ href, label }) => (
         <li>
