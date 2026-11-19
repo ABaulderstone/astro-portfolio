@@ -21,6 +21,14 @@ A personal portfolio site (`https://alexbaulderstone.com`), built as a static As
 - **Styling**: Tailwind v4 is set up through the Vite plugin, not `@astrojs/tailwind`, and there is no `tailwind.config.js`. All theme config lives in CSS in `src/styles/global.css` (`@theme` tokens such as `--color-brand` and `--font-sans`, plus `@plugin "@tailwindcss/typography"`). `Base.astro` is the only place that imports it. Dark mode uses Tailwind's default `dark:` variant, which follows `prefers-color-scheme`.
 - **Routing/SEO**: `trailingSlash: 'always'` is set in `astro.config.mjs`, so internal links need trailing slashes (`/about/`, not `/about`). `@astrojs/sitemap` generates the sitemap from `site`.
 
+## Rules
+
+- trailingSlash: 'always'; every page uses the Frame layout
+- Accessibility: semantic HTML, visible focus, 4.5:1 text contrast, honour prefers-reduced-motion
+- SEO: every page needs title, description, canonical URL
+- Don't animate main content opacity (hurts LCP); animate the border only
+- Zero client JS unless there's a clear reason
+
 ## Known gaps
 
 - `.frame-border` (used in `Frame.astro`) has no CSS defined yet.
