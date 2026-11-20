@@ -1,6 +1,60 @@
 ---
 import Frame from '../layouts/Frame.astro';
 ---
-<Frame title="About | Alex Baulderstone" description="About: Alex Baulderstone.">
-	<h1 class="text-center text-2xl leading-normal md:text-[2rem]">About</h1>
+<Frame title="About | Alex Baulderstone" description="About: Alex Baulderstone." panels>
+	<!--
+		Mobile: one column, with section 3 taking the spare height.
+		Desktop: a title bar, then a narrow left column (1, 2, 4) beside section 3.
+		Lines draw in order: mobile top to bottom; desktop title, divider, then the left column's
+		lines growing out of the divider.
+	-->
+	<div class="panels grid-rows-[auto_auto_auto_1fr_auto] md:grid-cols-[minmax(14rem,1fr)_3fr] lg:grid-cols-[minmax(21rem,1fr)_3fr] md:grid-rows-[auto_1fr_1fr_auto]">
+		<div class="edge-b p-5 md:col-span-2 md:p-8">
+			<h1 class="text-center text-2xl leading-normal md:text-[2rem]">About</h1>
+		</div>
+		<section class="edge-b flex items-center justify-center p-5 text-center [--edge-delay:150ms] md:p-8 lg:px-4 md:[--edge-delay:750ms] md:[--edge-origin:right]">
+			<!-- 24px needs the wider lg column: "Baulderstone" is 288px -->
+			<h2 class="text-base leading-normal lg:text-2xl">Alex Baulderstone</h2>
+		</section>
+		<section class="edge-b p-5 [--edge-delay:300ms] md:flex md:flex-col md:p-8 md:[--edge-delay:900ms] md:[--edge-origin:right]">
+			<h2 class="flex items-center gap-2 text-base leading-normal">
+				<svg aria-hidden="true" viewBox="0 0 24 24" class="size-6 shrink-0 text-nebula-600 dark:text-phosphor-400" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round">
+					<path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21Z" />
+					<circle cx="12" cy="9.5" r="2.5" />
+				</svg>
+				Location
+			</h2>
+			<!-- On desktop the place name sits centred in the space under the heading -->
+			<p class="mt-3 md:flex md:flex-1 md:items-center md:justify-center md:py-4 md:text-center md:text-lg lg:text-xl">Adelaide, Australia</p>
+		</section>
+		<section class="p-5 [--edge-delay:450ms] max-md:edge-b md:col-start-2 md:row-span-3 md:row-start-2 md:edge-l md:p-8 md:[--edge-delay:400ms]">
+			<div class="space-y-4">
+				<p>
+					Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut
+					labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco
+					laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in
+					voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+				</p>
+				<p>
+					Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim
+					id est laborum. Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium
+					doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi
+					architecto beatae vitae dicta sunt explicabo.
+				</p>
+			</div>
+		</section>
+		<section class="p-5 md:p-8">
+			<h2 class="flex items-center gap-2 text-base leading-normal">
+				<svg aria-hidden="true" viewBox="0 0 24 24" class="size-6 shrink-0 text-nebula-600 dark:text-phosphor-400" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round">
+					<path d="M4 18v-6a8 8 0 0 1 16 0v6" />
+					<path d="M4 14h3v6H4zM17 14h3v6h-3z" />
+				</svg>
+				Currently listening
+			</h2>
+			<p class="mt-3">
+				<span class="font-bold">Podcast Name</span><br />
+				Episode 42: An episode title goes here
+			</p>
+		</section>
+	</div>
 </Frame>

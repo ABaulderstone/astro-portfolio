@@ -31,3 +31,5 @@ A personal portfolio site (`https://alexbaulderstone.com`), built as a static As
 - Don't animate main content opacity (hurts LCP); animate the border only
 - Zero client JS unless there's a clear reason
 - Light mode accent: icons (menu, theme toggle etc.), links and headings are nebula (`nebula-600`); body text colour is still undecided
+- Code will be pushed to feature branches named feature/{description}
+  - Merges will happen on github, but prompt me if there are unmerged changes before switching to another branch

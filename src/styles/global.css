@@ -109,6 +109,11 @@
     --frame-width: 0.5rem;
     --nav-toggle-size: 3.5rem;
     --frame-inset-bottom: calc(var(--nav-toggle-size) + 2 * var(--frame-inset));
+    --frame-color: var(--color-nebula-600);
+
+    @variant dark {
+      --frame-color: var(--color-phosphor-400);
+    }
 
     @variant md {
       --frame-inset: clamp(2.5rem, 7vw, 6rem);
@@ -166,12 +171,24 @@
   .frame-border {
     position: absolute;
     inset: 0;
-    border: var(--frame-width) solid var(--color-nebula-600);
+    border: var(--frame-width) solid var(--frame-color);
     pointer-events: none;
+  }
 
-    @variant dark {
-      border-color: var(--color-phosphor-400);
-    }
+  /*
+   * Panels: a page rendered with <Frame panels> fills the frame edge to edge, and a .panels
+   * grid inside it divides the frame into sections. The gaps are as wide as the frame border,
+   * and panels mark their edges with edge-b / edge-l, which draw a line in the gap. So the
+   * frame always stays put and each page just rearranges its internals.
+   */
+  .frame-panels {
+    padding: var(--frame-width);
+  }
+
+  .panels {
+    display: grid;
+    flex: 1;
+    gap: var(--frame-width);
   }
 
   /* Mobile nav drawer: a full-screen popover that slides in from the right. */
@@ -212,5 +229,63 @@
     @media (prefers-reduced-motion: reduce) {
       transition: none;
     }
+  }
+}
+
+/*
+ * Panel edges (see .panels): edge-b draws a line in the gap below a panel and edge-l in the
+ * gap to its left, so they meet the frame border and each other. They draw themselves in on
+ * load; set --edge-delay to stagger them and --edge-origin to pick where a horizontal line
+ * starts (left by default). Only the lines animate, never the panel content.
+ */
+@utility edge-b {
+  position: relative;
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    right: 0;
+    left: 0;
+    height: var(--frame-width);
+    background: var(--frame-color);
+    transform-origin: var(--edge-origin, left);
+    animation: draw-x 600ms ease-in-out var(--edge-delay, 0ms) backwards;
+
+    @media (prefers-reduced-motion: reduce) {
+      animation: none;
+    }
+  }
+}
+
+@utility edge-l {
+  position: relative;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 100%;
+    bottom: 0;
+    width: var(--frame-width);
+    background: var(--frame-color);
+    transform-origin: top;
+    animation: draw-y 600ms ease-in-out var(--edge-delay, 0ms) backwards;
+
+    @media (prefers-reduced-motion: reduce) {
+      animation: none;
+    }
+  }
+}
+
+@keyframes draw-x {
+  from {
+    transform: scaleX(0);
+  }
+}
+
+@keyframes draw-y {
+  from {
+    transform: scaleY(0);
   }
 }

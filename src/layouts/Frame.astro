@@ -3,13 +3,22 @@
 import Base from './Base.astro';
 import SiteNav from '../components/SiteNav.astro';
 import ThemeToggle from '../components/ThemeToggle.astro';
+
+interface Props {
+  title: string;
+  description: string;
+  /** Fill the frame edge to edge so a page can divide it with `.panels` (see global.css) */
+  panels?: boolean;
+}
+
+const { panels = false, ...props } = Astro.props;
 ---
-<Base {...Astro.props}>
+<Base {...props}>
   <SiteNav slot="header" />
-  <div class="frame">
+  <div class:list={['frame', { 'frame-panels': panels }]}>
     <div class="frame-border" aria-hidden="true"></div>
     <!-- Fills the frame's height, so a page can centre content vertically with flex-1 -->
-    <div class="mx-auto flex w-full max-w-5xl flex-1 flex-col">
+    <div class:list={['flex w-full flex-1 flex-col', { 'mx-auto max-w-5xl': !panels }]}>
       <slot />
     </div>
   </div>
