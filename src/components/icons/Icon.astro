@@ -1,0 +1,13 @@
+---
+// Base for the icon set: a 24px grid stroked in currentColor, so an icon takes its colour from
+// the parent's text colour. Icons are decorative (aria-hidden): give the control around one an
+// accessible name, e.g. aria-label on an icon-only button.
+import type { HTMLAttributes } from 'astro/types';
+
+type Props = HTMLAttributes<'svg'>;
+
+const { class: className = 'size-7', ...attrs } = Astro.props;
+---
+<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class={className} {...attrs}>
+  <slot />
+</svg>

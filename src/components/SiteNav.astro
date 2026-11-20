@@ -1,4 +1,8 @@
 ---
+import CloseIcon from './icons/CloseIcon.astro';
+import HomeIcon from './icons/HomeIcon.astro';
+import MenuIcon from './icons/MenuIcon.astro';
+
 // Desktop: inline nav in the frame's top inset. Mobile: a fixed menu button in the
 // bottom-right that opens a slide-in drawer (popover API, so no client JS).
 const links = [
@@ -30,9 +34,7 @@ const focusClass =
         focusClass,
       ]}
     >
-      <svg aria-hidden="true" viewBox="0 0 24 24" class="size-7" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round">
-        <path d="M3 11l9-8 9 8M5 9.5V21h5v-6h4v6h5V9.5" />
-      </svg>
+      <HomeIcon />
     </a>
     <ul class="flex gap-10">
       {links.map(({ href, label }) => (
@@ -54,9 +56,7 @@ const focusClass =
       focusClass,
     ]}
   >
-    <svg aria-hidden="true" viewBox="0 0 24 24" class="size-7" fill="none" stroke="currentColor" stroke-width="2.5">
-      <path d="M3 6h18M3 12h18M3 18h18" />
-    </svg>
+    <MenuIcon />
   </button>
 
   <div id="nav-drawer" popover class="nav-drawer p-6">
@@ -68,9 +68,7 @@ const focusClass =
         aria-label="Close menu"
         class:list={['flex size-10 items-center justify-center text-nebula-600 dark:text-phosphor-400', focusClass]}
       >
-        <svg aria-hidden="true" viewBox="0 0 24 24" class="size-7" fill="none" stroke="currentColor" stroke-width="2.5">
-          <path d="M5 5l14 14M19 5L5 19" />
-        </svg>
+        <CloseIcon />
       </button>
     </div>
     <nav aria-label="Main">

@@ -1,0 +1,9 @@
+---
+import type { HTMLAttributes } from 'astro/types';
+import Icon from './Icon.astro';
+
+type Props = HTMLAttributes<'svg'>;
+---
+<Icon stroke-linejoin="round" {...Astro.props}>
+  <path d="M20 14.5A8.5 8.5 0 0 1 9.5 4 8.5 8.5 0 1 0 20 14.5Z" />
+</Icon>
