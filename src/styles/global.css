@@ -19,8 +19,10 @@
 /*
  * Retro-futurist palette. Each scale keeps one OKLCH hue and steps through lightness.
  * Text pairings that pass 4.5:1:
- *   on void-950:  phosphor-300/400/500, nebula-300/400/500, ember-300/400/500, paper-50 to 500
- *   on paper-100: nebula-600+, ember-600+, phosphor-700+, void-500+
+ *   on void-950:  phosphor-300/400/500, nebula-300/400/500, ember-300/400/500, paper-50 to 500, void-50 to 300
+ *   on paper-100: nebula-600+, ember-600+, phosphor-700+, void-500+, paper-700+
+ * Body text is paper-800 on paper-100 (10.5:1) and void-200 on void-950 (12.5:1): softer than
+ * pure black or the green accent, with each scale's warm or green cast.
  */
 @theme {
   --color-brand: var(--color-ember-500);
@@ -128,7 +130,7 @@
     }
   }
 
-  /* Accent colour: nebula in light mode. Dark mode inherits the body's phosphor text. */
+  /* Accent colour: nebula in light mode, phosphor in dark mode. Body text stays grey. */
   a,
   h1,
   h2,
@@ -139,7 +141,7 @@
     color: var(--color-nebula-600);
 
     @variant dark {
-      color: inherit;
+      color: var(--color-phosphor-300);
     }
   }
 
@@ -202,7 +204,7 @@
     max-height: none;
     border: 0;
     background: var(--color-paper-100);
-    color: var(--color-void-900);
+    color: var(--color-paper-800);
     transform: translateX(100%);
     transition:
       transform 300ms ease-out,
@@ -219,7 +221,7 @@
 
     @variant dark {
       background: var(--color-void-950);
-      color: var(--color-phosphor-300);
+      color: var(--color-void-200);
     }
 
     @variant md {
