@@ -30,6 +30,6 @@ A personal portfolio site (`https://alexbaulderstone.com`), built as a static As
 - SEO: every page needs title, description, canonical URL
 - Don't animate main content opacity (hurts LCP); animate the border only
 - Zero client JS unless there's a clear reason
-- Light mode accent: icons (menu, theme toggle etc.), links and headings are nebula (`nebula-600`); body text colour is still undecided
+- Light mode accent: icons (menu, theme toggle etc.), links and headings are nebula (`nebula-600`), phosphor in dark mode; body text is grey: `paper-800` in light mode, `void-200` in dark mode
 - Code will be pushed to feature branches named feature/{description}
   - Merges will happen on github, but prompt me if there are unmerged changes before switching to another branch
