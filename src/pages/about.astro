@@ -3,7 +3,7 @@ import HeadphonesIcon from '../components/icons/HeadphonesIcon.astro';
 import MapPinIcon from '../components/icons/MapPinIcon.astro';
 import Frame from '../layouts/Frame.astro';
 ---
-<Frame title="About | Alex Baulderstone" description="About: Alex Baulderstone." panels>
+<Frame title="About | Alex Baulderstone" description="Alex Baulderstone is a full-stack software engineer in Adelaide, building web apps and internal tools with Java, Spring Boot, React and TypeScript." panels>
 	<!--
 		Mobile: one column, with section 3 taking the spare height.
 		Desktop: a title bar, then a narrow left column (1, 2, 4) beside section 3.
@@ -40,22 +40,25 @@ import Frame from '../layouts/Frame.astro';
 				role="region"
 				aria-label="Bio"
 				tabindex="0"
-				class="h-full overflow-y-auto p-5 focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-ember-500 md:p-8 lg:p-10 xl:p-12 2xl:p-16"
+				class="h-full overflow-y-auto p-5 focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-ember-500 md:p-8 lg:p-10 xl:p-12 2xl:p-16 short:md:p-6"
 			>
 			<!-- The 70ch cap keeps lines readable and grows with the text (ch is font-relative). It's
 			     centred so any spare width splits evenly either side. -->
-			<div class="mx-auto max-w-[70ch] space-y-4 lg:space-y-[1em] lg:text-fluid lg:leading-relaxed">
+			<div class="mx-auto max-w-[70ch] space-y-4 lg:space-y-[1em] lg:text-fluid lg:leading-relaxed short:lg:leading-normal">
 				<p>
-					Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut
-					labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco
-					laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in
-					voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+					I'm a full-stack software engineer who builds web applications and internal tools, mostly with
+					Java and Spring Boot on the backend and React and TypeScript on the front end. I care about
+					software that's reliable, well tested and easy to pick up.
 				</p>
 				<p>
-					Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim
-					id est laborum. Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium
-					doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi
-					architecto beatae vitae dicta sunt explicabo.
+					Recently I led the rebuild of a large internal platform, migrating it from NestJS and Next.js to
+					Spring Boot and React while improving its performance and reliability. I've built tools
+					that tie together services like GitHub, Workable and Zoom, and an AI-assisted workflow for
+					generating resumes.
+				</p>
+				<p>
+					I've also mentored a lot of developers, and watching juniors grow is one of the best parts of the
+					work. Seeing them go from their first lines of code to confidently shipping features is so rewarding. Being able to oversee and review their code keeps me sharp. 
 				</p>
 			</div>
 			</div>
