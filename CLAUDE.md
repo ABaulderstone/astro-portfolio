@@ -10,6 +10,7 @@ See also `AGENTS.md` (Astro's agent instructions and doc links), which applies h
 - `npm run build`: production build to `dist/`
 - `npm run preview`: serve the built site
 - `npm test`: run the Vitest suite once (`npm run test:watch` to watch). Tests live next to the code as `src/**/*.test.ts` and render `.astro` components to HTML with Astro's container API (`astro/container`); `vitest.config.ts` uses `getViteConfig` so they get the Astro config.
+- `npm run test:e2e`: Playwright browser tests in `e2e/` (desktop Chrome and a Pixel 7), run against a production build served on port 4322. They cover axe WCAG 2.2 AA checks on every page in `src/pages` in light and dark mode, the mobile menu, the theme toggle, the skip link and the panel line animation (including reduced motion). First run locally needs `npx playwright install chromium`. `.github/workflows/test.yml` runs both suites and the build on every PR and push to main.
 - `npx astro check`: type-check `.astro`/TS files. There's no linter yet. (`@astrojs/check` isn't installed, so the first run will prompt to add it.)
 
 Requires Node >= 22.23.4 (Astro 7).
