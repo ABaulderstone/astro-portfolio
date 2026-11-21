@@ -1,16 +1,12 @@
 import { expect, test } from '@playwright/test';
+import { POSTS_PER_PAGE, RSS_POSTS } from '../src/lib/blog-config';
 import { posts } from './pages';
 
-// Posts as /blog/ lists them, newest first
-const newestFirst = async (page: import('@playwright/test').Page) => {
-  await page.goto('/blog/');
-  return page.getByRole('region', { name: 'Posts' }).locator('h2 a').evaluateAll((links) => links.map((a) => a.getAttribute('href')!));
-};
-
-test('the blog lists every post, and a whole entry opens its post', async ({ page }) => {
+test('the blog lists the newest posts, and a whole entry opens its post', async ({ page }) => {
   await page.goto('/blog/');
   const links = page.getByRole('region', { name: 'Posts' }).getByRole('heading', { level: 2 }).getByRole('link');
-  await expect(links).toHaveCount(posts.length);
+  await expect(links).toHaveCount(Math.min(posts.length, POSTS_PER_PAGE));
+  await expect(links.first()).toHaveAttribute('href', posts[0]);
   const href = await links.first().getAttribute('href');
   // Click the description, not the title: the title link stretches over the entry (force, as
   // Playwright otherwise refuses because the link covers it, which is the point)
@@ -40,7 +36,7 @@ test('on desktop a post shows its tags beside it, and links back to all posts', 
 
 test('on mobile the bar steps to older and newer posts', async ({ page, isMobile }) => {
   test.skip(!isMobile, 'the bar is mobile only');
-  const [newest, second] = await newestFirst(page);
+  const [newest, second] = posts;
   await page.goto(newest);
   await expect(page.getByRole('link', { name: /^Newer post:/ })).toHaveCount(0);
   await page.getByRole('link', { name: /^Older post:/ }).click();
@@ -49,8 +45,21 @@ test('on mobile the bar steps to older and newer posts', async ({ page, isMobile
   await expect(page).toHaveURL(new RegExp(`${newest}$`));
 });
 
-test('the RSS feed lists every post', async ({ request }) => {
+test('the RSS feed lists the newest posts, up to its limit', async ({ request }) => {
   const response = await request.get('/rss.xml');
   expect(response.ok()).toBe(true);
-  expect((await response.text()).match(/<item>/g)).toHaveLength(posts.length);
+  expect((await response.text()).match(/<item>/g)).toHaveLength(Math.min(posts.length, RSS_POSTS));
+});
+
+test('the blog list pages only when there are more posts than fit on one', async ({ page, request }) => {
+  await page.goto('/blog/');
+  const pager = page.getByRole('navigation', { name: 'Pages' });
+  if (posts.length <= POSTS_PER_PAGE) {
+    await expect(pager).toHaveCount(0);
+    expect((await request.get('/blog/2/')).status()).toBe(404);
+  } else {
+    await expect(pager).toContainText(`Page 1 of ${Math.ceil(posts.length / POSTS_PER_PAGE)}`);
+    await pager.getByRole('link', { name: 'Older posts' }).click();
+    await expect(page).toHaveURL(/\/blog\/2\/$/);
+  }
 });

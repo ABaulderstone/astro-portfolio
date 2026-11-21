@@ -1,9 +1,10 @@
 import rss from '@astrojs/rss';
 import type { APIContext } from 'astro';
 import { getPosts } from '../lib/blog';
+import { RSS_POSTS } from '../lib/blog-config';
 
 export async function GET(context: APIContext) {
-  const posts = await getPosts();
+  const posts = (await getPosts()).slice(0, RSS_POSTS);
   return rss({
     title: "Alex Baulderstone's blog",
     description: 'Writing on full-stack development, Java, React and TypeScript, and helping junior developers grow.',
