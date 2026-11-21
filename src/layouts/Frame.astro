@@ -17,8 +17,9 @@ const { panels = false, ...props } = Astro.props;
   <SiteNav slot="header" />
   <div class:list={['frame', { 'frame-panels': panels }]}>
     <div class="frame-border" aria-hidden="true"></div>
-    <!-- Fills the frame's height, so a page can centre content vertically with flex-1 -->
-    <div class:list={['flex w-full flex-1 flex-col', { 'mx-auto max-w-5xl': !panels }]}>
+    <!-- Fills the frame's height, so a page can centre content vertically with flex-1. The frame
+         is one screen tall, so content that outgrows it scrolls here rather than the page. -->
+    <div class:list={['flex min-h-0 w-full flex-1 flex-col overflow-y-auto', { 'mx-auto max-w-5xl': !panels }]}>
       <slot />
     </div>
   </div>
