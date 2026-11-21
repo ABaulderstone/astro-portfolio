@@ -1,6 +1,25 @@
 ---
+import ContactForm from '../components/form/ContactForm.astro';
 import Frame from '../layouts/Frame.astro';
 ---
-<Frame title="Contact | Alex Baulderstone" description="Get in touch with Alex Baulderstone, a full-stack software engineer in Adelaide, Australia, about roles, projects or a chat.">
-	<h1 class="text-center text-2xl leading-normal md:text-[2rem]">Contact</h1>
+<Frame title="Contact | Alex Baulderstone" description="Get in touch with Alex Baulderstone, a full-stack software engineer in Adelaide, Australia, about roles, projects or a chat." panels>
+	<!-- A title bar, then the form, centred and scrolling inside its panel on short screens -->
+	<div class="panels grid-rows-[auto_1fr]">
+		<div class="edge-b p-5 md:p-8 short:md:py-4">
+			<h1 class="text-center text-2xl leading-normal md:text-[2rem]">Contact</h1>
+		</div>
+
+		<div class="min-h-0">
+			<div role="region" aria-label="Contact form" tabindex="0" class="scroll-shadow h-full overflow-y-auto p-5 focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-ember-500 md:p-8 lg:flex lg:flex-col short:md:py-6">
+				<!-- my-auto centres it from lg, and it still scrolls from the top when it overflows -->
+				<div class="mx-auto w-full max-w-2xl lg:my-auto lg:text-fluid">
+					<p class="mb-6">Questions about a role, a project or just a chat: send me a message and I'll get back to you.</p>
+					<!-- No form backend yet, so it just goes to the thank-you page. GET because a static
+					     host won't accept a POST to a page; switch to POST with a real backend, as GET
+					     puts the message in the URL. -->
+					<ContactForm action="/contact/thanks/" method="get" />
+				</div>
+			</div>
+		</div>
+	</div>
 </Frame>

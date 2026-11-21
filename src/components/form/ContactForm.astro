@@ -1,0 +1,27 @@
+---
+// The contact form: name, email and message, checked by the browser (no client JS). `error` is
+// a message about the whole form (a failed send, say), shown below the fields; its line is
+// reserved either way. `action` and `method` say where it submits.
+import FormField from './FormField.astro';
+import SubmitButton from './SubmitButton.astro';
+
+interface Props {
+	action?: string;
+	method?: 'get' | 'post';
+	error?: string;
+}
+
+const { action, method = 'post', error } = Astro.props;
+---
+<form {action} {method} aria-label="Contact" class="flex flex-col gap-2">
+	<!-- Name and email side by side from md, so the form fits a laptop screen -->
+	<div class="grid gap-x-6 gap-y-2 md:grid-cols-2">
+		<FormField name="name" label="Name" autocomplete="name" placeholder="Your name" required error="Please enter your name." />
+		<FormField name="email" label="Email" type="email" autocomplete="email" placeholder="you@example.com" required error="Please enter a valid email address." />
+	</div>
+	<FormField name="message" label="Message" type="textarea" rows={4} placeholder="What would you like to talk about?" required minlength={10} error="Please enter a message of at least 10 characters." />
+	<p role="alert" class="min-h-6 text-ember-600 lg:text-base dark:text-ember-400">{error}</p>
+	<div class="mt-2">
+		<SubmitButton>Send</SubmitButton>
+	</div>
+</form>
