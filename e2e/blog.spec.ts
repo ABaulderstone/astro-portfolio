@@ -29,13 +29,13 @@ test('a post has article SEO: Open Graph, canonical URL and BlogPosting data', a
   expect(data.headline).toBe(await page.locator('h1').textContent());
 });
 
-test('on desktop the index marks the post you are reading', async ({ page, isMobile }) => {
-  test.skip(isMobile, 'the index is desktop only');
-  const [, post] = posts;
+test('on desktop a post shows its tags beside it, and links back to all posts', async ({ page, isMobile }) => {
+  test.skip(isMobile, 'the side panels are desktop only');
+  const [post] = posts;
   await page.goto(post);
-  const current = page.getByRole('navigation', { name: 'All posts' }).locator('[aria-current="page"]');
-  await expect(current).toHaveCount(1);
-  await expect(current).toHaveAttribute('href', post);
+  await expect(page.getByRole('complementary', { name: 'Tags' }).getByRole('listitem').first()).toBeVisible();
+  await page.getByRole('link', { name: 'All posts' }).click();
+  await expect(page).toHaveURL(/\/blog\/$/);
 });
 
 test('on mobile the bar steps to older and newer posts', async ({ page, isMobile }) => {

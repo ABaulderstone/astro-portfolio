@@ -2,25 +2,25 @@
 import { render } from 'astro:content';
 import ChevronLeftIcon from '../../components/icons/ChevronLeftIcon.astro';
 import ChevronRightIcon from '../../components/icons/ChevronRightIcon.astro';
+import TagIcon from '../../components/icons/TagIcon.astro';
 import Frame from '../../layouts/Frame.astro';
-import { byYear, formatDate, getPosts, readingTime, type Post } from '../../lib/blog';
+import { formatDate, getPosts, readingTime, type Post } from '../../lib/blog';
 
 export async function getStaticPaths() {
 	const posts = await getPosts();
 	return posts.map((post, i) => ({
 		params: { slug: post.id },
-		props: { post, posts, newer: posts[i - 1], older: posts[i + 1] },
+		props: { post, newer: posts[i - 1], older: posts[i + 1] },
 	}));
 }
 
 interface Props {
 	post: Post;
-	posts: Post[];
 	newer?: Post;
 	older?: Post;
 }
 
-const { post, posts, newer, older } = Astro.props;
+const { post, newer, older } = Astro.props;
 const { title, description, pubDate, updatedDate, tags } = post.data;
 const { Content } = await render(post);
 const url = new URL(Astro.url.pathname, Astro.site);
@@ -46,49 +46,42 @@ const arrowClass =
 <Frame title={`${title} | Alex Baulderstone`} {description} type="article" publishedTime={pubDate} modifiedTime={updatedDate} panels>
 	<script type="application/ld+json" slot="head" set:html={jsonLd} />
 	<!--
-		Mobile: a title bar, the post, and a bar with arrows to the older and newer posts.
-		md+: a title bar, then an index of every post (by year) beside the post.
+		Mobile: a title bar, the post (tags in its header), and a bar with arrows to the older and
+		newer posts.
+		md+: a title bar, then a left column of the post's tags and a link back to all posts, beside
+		the post (like the about page).
 		Posts are reached by clicking between them, so the lines don't draw in (edges-static).
 	-->
-	<div class="panels edges-static grid-rows-[auto_1fr_auto] md:grid-cols-[minmax(16rem,1fr)_3fr] md:grid-rows-[auto_1fr] lg:grid-cols-[minmax(20rem,1fr)_3fr]">
+	<div class="panels edges-static grid-rows-[auto_1fr_auto] md:grid-cols-[minmax(16rem,1fr)_3fr] md:grid-rows-[auto_1fr_auto] lg:grid-cols-[minmax(20rem,1fr)_3fr]">
 		<div class="edge-b p-5 text-center md:col-span-2 md:p-8 short:md:py-4">
 			<a href="/blog/" class="font-heading text-2xl leading-normal hover:text-ember-600 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ember-500 md:text-[2rem] dark:text-phosphor-300 dark:hover:text-ember-400">Blog</a>
 		</div>
 
-		<div class="min-h-0 max-md:hidden">
-			<nav aria-label="All posts" tabindex="0" class="scroll-shadow h-full overflow-y-auto p-8 focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-ember-500 short:p-5">
-				{byYear(posts).map(([year, posts]) => (
-					<section class="mt-8 first:mt-0">
-						<h2 class="text-base leading-normal">{year}</h2>
-						<!-- A square marks the post you're reading, like the career timeline's nodes -->
-						<ul class="mt-4 space-y-4">
-							{posts.map((entry) => (
-								<li>
-									<a
-										href={`/blog/${entry.id}/`}
-										aria-current={entry.id === post.id ? 'page' : undefined}
-										class="relative block pl-6 leading-snug before:absolute before:top-1.5 before:left-0 before:size-3 before:border-2 before:border-(--frame-color) hover:text-ember-600 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ember-500 aria-[current=page]:font-bold aria-[current=page]:before:bg-(--frame-color) lg:text-fluid dark:text-phosphor-300 dark:hover:text-ember-400"
-									>
-										{entry.data.title}
-									</a>
-								</li>
-							))}
-						</ul>
-					</section>
-				))}
-			</nav>
-		</div>
+		<aside aria-label="Tags" class="edge-b pattern-hatch pattern-on-hover p-8 max-md:hidden md:col-start-1 md:row-start-2 short:p-5">
+			<h2 class="flex items-center gap-2 text-base leading-normal 3xl:text-2xl">
+				<TagIcon class="size-6 shrink-0 text-nebula-600 3xl:size-8 dark:text-phosphor-400" />
+				Tags
+			</h2>
+			{tags.length > 0 ? (
+				<ul class="mt-4 flex flex-wrap gap-2">
+					{tags.map((tag) => (
+						<li class="border-2 border-(--frame-color) px-2 py-0.5 text-sm lg:text-base">{tag}</li>
+					))}
+				</ul>
+			) : <p class="mt-4">No tags</p>}
+		</aside>
 
 		<!-- min-w-0 so a wide code block scrolls inside itself rather than widening the grid -->
-		<div class="min-h-0 min-w-0 max-md:edge-b md:edge-l">
+		<div class="min-h-0 min-w-0 max-md:edge-b md:col-start-2 md:row-span-2 md:row-start-2 md:edge-l">
 			<!-- Scrolls when the post outgrows the panel (see the about page's Bio region) -->
 			<div
 				role="region"
 				aria-labelledby="post-title"
 				tabindex="0"
-				class="scroll-shadow h-full overflow-y-auto p-5 focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-ember-500 md:p-8 lg:p-10 xl:p-12 2xl:p-16 short:md:p-6"
+				class="scroll-shadow h-full overflow-y-auto p-5 focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-ember-500 md:px-8 md:py-6 lg:px-10 lg:py-8 short:md:py-5"
 			>
-				<article class="mx-auto max-w-[70ch]">
+				<!-- Left-aligned, so the text starts by the divider rather than floating mid-panel -->
+				<article class="max-w-[70ch]">
 					<header>
 						<h1 id="post-title" class="text-base leading-normal md:text-2xl lg:text-[2rem]">{title}</h1>
 						<p class="mt-4 text-sm lg:text-base">
@@ -96,8 +89,9 @@ const arrowClass =
 							{updatedDate && <>{' '}(updated <time datetime={updatedDate.toISOString()}>{formatDate(updatedDate)}</time>)</>}
 							<span aria-hidden="true"> · </span>{readingTime(post.body ?? '')} min read
 						</p>
+						<!-- On md+ the tags are in their own panel -->
 						{tags.length > 0 && (
-							<ul class="mt-4 flex flex-wrap gap-2" aria-label="Tags">
+							<ul class="mt-4 flex flex-wrap gap-2 md:hidden" aria-label="Tags">
 								{tags.map((tag) => (
 									<li class="border-2 border-(--frame-color) px-2 py-0.5 text-sm">{tag}</li>
 								))}
@@ -109,6 +103,14 @@ const arrowClass =
 					</div>
 				</article>
 			</div>
+		</div>
+
+		<!-- md+: back to the list. The link fills the panel, so all of it is clickable. -->
+		<div class="pattern-dots pattern-on-hover max-md:hidden md:col-start-1 md:row-start-3">
+			<a href="/blog/" class="flex items-center gap-2 p-8 font-heading text-base leading-normal hover:text-ember-600 focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-ember-500 short:p-5 dark:text-phosphor-300 dark:hover:text-ember-400">
+				<ChevronLeftIcon class="size-6 shrink-0" />
+				All posts
+			</a>
 		</div>
 
 		<!-- Mobile only: older post on the left, newer on the right, like the career timeline -->

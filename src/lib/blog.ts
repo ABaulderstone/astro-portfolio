@@ -18,13 +18,3 @@ export function readingTime(markdown: string): number {
 export function formatDate(date: Date): string {
   return date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' });
 }
-
-/** Posts grouped by the year they were published, newest year first, keeping their order */
-export function byYear(posts: Post[]): [number, Post[]][] {
-  const years = new Map<number, Post[]>();
-  for (const post of posts) {
-    const year = post.data.pubDate.getUTCFullYear();
-    years.set(year, [...(years.get(year) ?? []), post]);
-  }
-  return [...years];
-}

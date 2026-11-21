@@ -21,10 +21,12 @@ const posts = await getPosts();
 
 		<div class="min-h-0 [--edge-delay:150ms]">
 			<div role="region" aria-label="Posts" tabindex="0" class="scroll-shadow h-full overflow-y-auto focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-ember-500">
-				<!-- Each title link stretches over its whole entry, so anywhere on it opens the post -->
-				<ul class="divide-y-2 divide-(--frame-color)">
+				<!-- Each title link stretches over its whole entry, so anywhere on it opens the post. Every
+				     entry has a line below it, so when all the posts fit, the last one's hover pattern
+				     still ends at a line. -->
+				<ul>
 					{posts.map((post) => (
-						<li class="pattern-dots pattern-on-hover relative px-5 py-6 md:px-8 md:py-8 short:md:py-6">
+						<li class="pattern-dots pattern-on-hover relative border-b-2 border-(--frame-color) px-5 py-6 md:px-8 md:py-8 short:md:py-6">
 							<article class="mx-auto max-w-[70ch] lg:text-fluid">
 								<p class="text-sm lg:text-base">
 									<time datetime={post.data.pubDate.toISOString()}>{formatDate(post.data.pubDate)}</time>
@@ -42,7 +44,7 @@ const posts = await getPosts();
 								{post.data.tags.length > 0 && (
 									<ul class="mt-4 flex flex-wrap gap-2" aria-label="Tags">
 										{post.data.tags.map((tag) => (
-											<li class="border-2 border-(--frame-color) px-2 py-0.5 text-sm">{tag}</li>
+											<li class="border-2 border-(--frame-color) px-2 py-0.5 text-sm lg:text-base">{tag}</li>
 										))}
 									</ul>
 								)}
