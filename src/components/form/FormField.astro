@@ -1,0 +1,40 @@
+---
+// A labelled input or textarea with room for an error message below it. Validation is the
+// browser's (required, type="email", minlength and so on, passed through as attributes). The
+// message shows once the field is :user-invalid, i.e. after someone has interacted with it,
+// and its line is always reserved so the form doesn't jump when it appears.
+import type { HTMLAttributes } from 'astro/types';
+
+type Props = Omit<HTMLAttributes<'input'> & HTMLAttributes<'textarea'>, 'type' | 'class'> & {
+	name: string;
+	label: string;
+	/** Shown below the field while it's invalid */
+	error: string;
+	type?: 'text' | 'email' | 'textarea';
+	/** Extra classes for the input or textarea (a height, say) */
+	fieldClass?: string;
+};
+
+const { name, label, error, type = 'text', rows = 6, fieldClass, ...attrs } = Astro.props;
+const id = `field-${name}`;
+
+// Borders are a lighter step of the frame colour (3:1 against the input), darkening on focus,
+// with a frame-coloured focus ring; ember when invalid
+const controlClass = [
+	'peer block w-full border-2 border-nebula-500 bg-paper-50 px-3 py-2 text-paper-900 placeholder:text-paper-600',
+	'focus-visible:border-nebula-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-nebula-600',
+	'user-invalid:border-ember-600',
+	'dark:border-phosphor-600 dark:bg-void-900 dark:text-void-50 dark:placeholder:text-void-400',
+	'dark:focus-visible:border-phosphor-300 dark:focus-visible:outline-phosphor-400 dark:user-invalid:border-ember-400',
+];
+---
+<div>
+	<label for={id} class="mb-1 block font-medium text-nebula-700 dark:text-phosphor-300">{label}</label>
+	{type === 'textarea' ? (
+		<textarea {id} {name} {rows} class:list={[controlClass, 'resize-y', fieldClass]} {...attrs} />
+	) : (
+		<input {id} {name} {type} class:list={[controlClass, fieldClass]} {...attrs} />
+	)}
+	<!-- invisible (not hidden), so its line stays reserved -->
+	<p class="invisible min-h-6 text-sm text-ember-600 peer-user-invalid:visible lg:text-base dark:text-ember-400">{error}</p>
+</div>

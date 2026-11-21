@@ -1,6 +1,45 @@
 ---
+import ContactForm from '../components/form/ContactForm.astro';
+import LinkIcon from '../components/icons/LinkIcon.astro';
+import SocialLinks from '../components/SocialLinks.astro';
 import Frame from '../layouts/Frame.astro';
 ---
-<Frame title="Contact | Alex Baulderstone" description="Get in touch with Alex Baulderstone, a full-stack software engineer in Adelaide, Australia, about roles, projects or a chat.">
-	<h1 class="text-center text-2xl leading-normal md:text-[2rem]">Contact</h1>
+<Frame title="Contact | Alex Baulderstone" description="Get in touch with Alex Baulderstone, a full-stack software engineer in Adelaide, Australia, about roles, projects or a chat." panels>
+	<!--
+		Mobile: a title bar, the form (scrolling inside its panel on short screens), and a bar of
+		social icons along the bottom of the frame.
+		md+: a title bar, then a left column of social links (icon and label) beside the form, like
+		the blog and project pages.
+	-->
+	<div class="panels grid-rows-[auto_1fr_auto] md:grid-cols-[minmax(16rem,1fr)_3fr] md:grid-rows-[auto_1fr] lg:grid-cols-[minmax(20rem,1fr)_3fr]">
+		<div class="edge-b p-5 md:col-span-2 md:p-8 short:md:py-4">
+			<h1 class="text-center text-2xl leading-normal md:text-[2rem]">Contact</h1>
+		</div>
+
+		<aside aria-labelledby="elsewhere" class="pattern-dots pattern-on-hover p-8 max-md:hidden md:col-start-1 md:row-start-2 short:p-5">
+			<h2 id="elsewhere" class="flex items-center gap-2 text-base leading-normal 3xl:text-2xl">
+				<LinkIcon class="size-6 shrink-0 text-nebula-600 3xl:size-8 dark:text-phosphor-400" />
+				Elsewhere
+			</h2>
+			<SocialLinks class="mt-2 lg:text-fluid" />
+		</aside>
+
+		<div class="min-h-0 [--edge-delay:150ms] max-md:edge-b md:col-start-2 md:row-start-2 md:edge-l">
+			<div role="region" aria-label="Contact form" tabindex="0" class="scroll-shadow h-full overflow-y-auto p-5 focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-ember-500 md:p-8 lg:flex lg:flex-col short:md:py-4">
+				<!-- my-auto centres it from lg, and it still scrolls from the top when it overflows -->
+				<div class="mx-auto w-full max-w-2xl lg:my-auto lg:text-fluid">
+					<p class="mb-6 short:md:mb-4">Questions about a role, a project or just a chat: send me a message and I'll get back to you.</p>
+					<!-- No form backend yet, so it just goes to the thank-you page. GET because a static
+					     host won't accept a POST to a page; switch to POST with a real backend, as GET
+					     puts the message in the URL. -->
+					<ContactForm action="/contact/thanks/" method="get" />
+				</div>
+			</div>
+		</div>
+
+		<!-- Mobile only: the same links as icons, named for screen readers -->
+		<div class="px-2 py-1 md:hidden">
+			<SocialLinks compact />
+		</div>
+	</div>
 </Frame>

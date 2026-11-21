@@ -1,0 +1,16 @@
+---
+import HomeIcon from '../../components/icons/HomeIcon.astro';
+import Frame from '../../layouts/Frame.astro';
+---
+<!-- Where the contact form lands. Kept out of search results and the sitemap (astro.config.mjs). -->
+<Frame title="Thank you | Alex Baulderstone" description="Thanks for getting in touch with Alex Baulderstone. Your message has been sent.">
+	<meta name="robots" content="noindex" slot="head" />
+	<div class="flex flex-1 flex-col items-center justify-center text-center">
+		<h1 class="text-2xl leading-normal md:text-[2rem]">Thank you</h1>
+		<p class="mt-6 max-w-[60ch] lg:text-fluid">Thanks for getting in touch. I'll be in contact shortly.</p>
+		<a href="/" class="mt-8 flex min-h-11 items-center gap-2 font-heading text-base hover:text-ember-600 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ember-500 dark:hover:text-ember-400">
+			<HomeIcon class="size-6 shrink-0" />
+			Back to home
+		</a>
+	</div>
+</Frame>
