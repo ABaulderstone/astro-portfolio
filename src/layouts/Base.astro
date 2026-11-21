@@ -1,7 +1,18 @@
 ---
 import { Font } from 'astro:assets';
 import '../styles/global.css';
-const { title, description } = Astro.props;
+
+export interface Props {
+  title: string;
+  description: string;
+  /** Open Graph type: 'article' for blog posts, with their dates */
+  type?: 'website' | 'article';
+  publishedTime?: Date;
+  modifiedTime?: Date;
+}
+
+const { title, description, type = 'website', publishedTime, modifiedTime } = Astro.props;
+const canonical = new URL(Astro.url.pathname, Astro.site);
 ---
 <html lang="en">
   <head>
@@ -9,7 +20,19 @@ const { title, description } = Astro.props;
     <meta name="viewport" content="width=device-width" />
     <title>{title}</title>
     <meta name="description" content={description} />
-    <link rel="canonical" href={new URL(Astro.url.pathname, Astro.site)} />
+    <link rel="canonical" href={canonical} />
+    <link rel="alternate" type="application/rss+xml" title="Alex Baulderstone's blog" href={new URL('rss.xml', Astro.site)} />
+    <!-- Link previews (LinkedIn, Slack and so on) -->
+    <meta property="og:type" content={type} />
+    <meta property="og:site_name" content="Alex Baulderstone" />
+    <meta property="og:locale" content="en_AU" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    {publishedTime && <meta property="article:published_time" content={publishedTime.toISOString()} />}
+    {modifiedTime && <meta property="article:modified_time" content={modifiedTime.toISOString()} />}
+    <meta name="twitter:card" content="summary" />
+    <slot name="head" />
     <Font cssVariable="--font-roboto" preload={[{ weight: '400', style: 'normal' }]} />
     <Font cssVariable="--font-press-start" preload />
     <!-- Apply a saved theme before first paint so there's no flash (see ThemeToggle) -->

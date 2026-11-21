@@ -1,0 +1,126 @@
+---
+import type { GetStaticPaths, Page } from 'astro';
+import ChevronLeftIcon from '../../components/icons/ChevronLeftIcon.astro';
+import ChevronRightIcon from '../../components/icons/ChevronRightIcon.astro';
+import RssIcon from '../../components/icons/RssIcon.astro';
+import Frame from '../../layouts/Frame.astro';
+import { formatDate, getPosts, readingTime, type Post } from '../../lib/blog';
+import { POSTS_PER_PAGE } from '../../lib/blog-config';
+import { pageItems, pageUrl } from '../../lib/pagination';
+
+// The list, newest first, a page at a time: /blog/, then /blog/2/, /blog/3/ and so on
+export const getStaticPaths = (async ({ paginate }) => paginate(await getPosts(), { pageSize: POSTS_PER_PAGE })) satisfies GetStaticPaths;
+
+interface Props {
+	page: Page<Post>;
+}
+
+const { page } = Astro.props;
+const paged = page.lastPage > 1;
+const description = 'Writing by Alex Baulderstone on full-stack development, Java, React and TypeScript, and helping junior developers grow.';
+
+// Numbered links: two pages either side of this one on md+, just this one on phones (with the
+// first and last pages either way), so they fit between the arrows
+const pageLists = [
+	{ items: pageItems(page.currentPage, page.lastPage, 0), class: 'md:hidden' },
+	{ items: pageItems(page.currentPage, page.lastPage, 2), class: 'max-md:hidden' },
+];
+
+const arrowClass =
+	'flex min-w-11 items-center justify-center gap-2 p-2 hover:text-ember-600 focus-visible:outline-2 focus-visible:outline-ember-500 dark:text-phosphor-400 dark:hover:text-ember-400';
+---
+<Frame
+	title={page.currentPage === 1 ? 'Blog | Alex Baulderstone' : `Blog, page ${page.currentPage} | Alex Baulderstone`}
+	description={page.currentPage === 1 ? description : `${description} Page ${page.currentPage} of ${page.lastPage}.`}
+	panels
+>
+	<!-- A title bar, then this page's posts (scrolling inside their panel), then, when there's more
+	     than one page, a bar to the older and newer pages -->
+	<div class:list={['panels', paged ? 'grid-rows-[auto_1fr_auto]' : 'grid-rows-[auto_1fr]']}>
+		<div class="edge-b flex items-center justify-center p-5 md:p-8 short:md:py-4">
+			<h1 class="text-center text-2xl leading-normal md:text-[2rem]">Blog</h1>
+			<a
+				href="/rss.xml"
+				aria-label="RSS feed"
+				class="absolute right-3 flex size-11 items-center justify-center hover:text-ember-600 focus-visible:outline-2 focus-visible:outline-ember-500 md:right-6 dark:text-phosphor-400 dark:hover:text-ember-400"
+			>
+				<RssIcon class="size-6" />
+			</a>
+		</div>
+
+		<div class:list={['min-h-0 [--edge-delay:150ms]', { 'edge-b': paged }]}>
+			<div role="region" aria-label="Posts" tabindex="0" class="scroll-shadow h-full overflow-y-auto focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-ember-500">
+				<!-- Each title link stretches over its whole entry, so anywhere on it opens the post. Every
+				     entry has a line below it, so when all the posts fit, the last one's hover pattern
+				     still ends at a line. -->
+				<ul>
+					{page.data.map((post) => (
+						<li class="pattern-dots pattern-on-hover relative border-b-2 border-(--frame-color) px-5 py-6 md:px-8 md:py-8 short:md:py-6">
+							<article class="mx-auto max-w-[70ch] lg:text-fluid">
+								<p class="text-sm lg:text-base">
+									<time datetime={post.data.pubDate.toISOString()}>{formatDate(post.data.pubDate)}</time>
+									<span aria-hidden="true"> · </span>{readingTime(post.body ?? '')} min read
+								</p>
+								<h2 class="mt-2 text-base leading-normal md:text-2xl">
+									<a
+										href={`/blog/${post.id}/`}
+										class="after:absolute after:inset-0 hover:text-ember-600 focus-visible:outline-none focus-visible:after:outline-2 focus-visible:after:-outline-offset-4 focus-visible:after:outline-ember-500 dark:hover:text-ember-400"
+									>
+										{post.data.title}
+									</a>
+								</h2>
+								<p class="mt-3">{post.data.description}</p>
+								{post.data.tags.length > 0 && (
+									<ul class="mt-4 flex flex-wrap gap-2" aria-label="Tags">
+										{post.data.tags.map((tag) => (
+											<li class="border-2 border-(--frame-color) px-2 py-0.5 text-sm lg:text-base">{tag}</li>
+										))}
+									</ul>
+								)}
+							</article>
+						</li>
+					))}
+				</ul>
+			</div>
+		</div>
+
+		<!-- Older on the left, newer on the right, like the post pages and the career timeline. The
+		     labels are visible from md; on phones the arrows carry them. -->
+		{paged && (
+			<nav aria-label="Pages" class="flex items-center justify-between px-2 py-1 md:px-6 md:py-3">
+				{page.url.next ? (
+					<a href={page.url.next} rel="next" class={arrowClass}>
+						<ChevronLeftIcon class="size-6 shrink-0" />
+						<span class="max-md:sr-only">Older posts</span>
+					</a>
+				) : <span class="min-w-11" />}
+				{pageLists.map((list) => (
+					<ol class:list={['flex items-center gap-1', list.class]}>
+						{list.items.map((item) =>
+							item === 'gap' ? (
+								<li aria-hidden="true" class="w-6 text-center">…</li>
+							) : (
+								<li>
+									<a
+										href={pageUrl(item)}
+										aria-label={`Page ${item}`}
+										aria-current={item === page.currentPage ? 'page' : undefined}
+										class="flex size-10 items-center justify-center font-heading text-base hover:text-ember-600 focus-visible:outline-2 focus-visible:outline-ember-500 aria-[current=page]:border-2 aria-[current=page]:border-(--frame-color) dark:text-phosphor-300 dark:hover:text-ember-400"
+									>
+										{item}
+									</a>
+								</li>
+							),
+						)}
+					</ol>
+				))}
+				{page.url.prev ? (
+					<a href={page.url.prev} rel="prev" class={arrowClass}>
+						<span class="max-md:sr-only">Newer posts</span>
+						<ChevronRightIcon class="size-6 shrink-0" />
+					</a>
+				) : <span class="min-w-11" />}
+			</nav>
+		)}
+	</div>
+</Frame>

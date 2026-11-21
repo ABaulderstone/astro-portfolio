@@ -25,7 +25,7 @@ function marquee(stack: string[]) {
 const year = (date: Date) => date.getUTCFullYear();
 const years = ({ start, end }: { start: Date; end?: Date }) =>
 	end && year(end) === year(start) ? `${year(start)}` : `${year(start)} - ${end ? year(end) : 'Now'}`;
-const month = (date: Date) => date.toLocaleString('en-AU', { month: 'short', year: 'numeric', timeZone: 'UTC' });
+const month = (date: Date) => date.toLocaleString('en-GB', { month: 'short', year: 'numeric', timeZone: 'UTC' });
 const isoMonth = (date: Date) => date.toISOString().slice(0, 7);
 
 // The URL hash is the state, so it needs no JS: each job's article has the job's id

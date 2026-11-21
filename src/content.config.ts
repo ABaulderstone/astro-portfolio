@@ -23,4 +23,18 @@ const career = defineCollection({
   }),
 });
 
-export const collections = { career };
+// Blog posts: one Markdown file per post, its file name being the URL slug (/blog/<slug>/).
+// Drafts show in dev but are left out of the build.
+const blog = defineCollection({
+  loader: glob({ pattern: '*.md', base: './src/content/blog' }),
+  schema: z.object({
+    title: z.string(),
+    description: z.string(),
+    pubDate: z.coerce.date(),
+    updatedDate: z.coerce.date().optional(),
+    tags: z.array(z.string()).default([]),
+    draft: z.boolean().default(false),
+  }),
+});
+
+export const collections = { career, blog };

@@ -450,3 +450,83 @@
   animation-timing-function: linear;
   animation-iteration-count: infinite;
 }
+
+/*
+ * Blog post text: the typography plugin's prose, in the site's colours (accent headings and
+ * links, grey body text). Press Start 2P headings stay on its 8px grid.
+ */
+@utility prose-site {
+  --tw-prose-body: var(--color-paper-800);
+  --tw-prose-headings: var(--color-nebula-600);
+  --tw-prose-links: var(--color-nebula-600);
+  --tw-prose-bold: var(--color-paper-900);
+  --tw-prose-counters: var(--color-paper-700);
+  --tw-prose-bullets: var(--color-nebula-600);
+  --tw-prose-hr: var(--frame-color);
+  --tw-prose-quotes: var(--color-paper-800);
+  --tw-prose-quote-borders: var(--frame-color);
+  --tw-prose-code: var(--color-paper-900);
+  --tw-prose-th-borders: var(--frame-color);
+  --tw-prose-td-borders: var(--color-paper-300);
+
+  @variant dark {
+    --tw-prose-body: var(--color-void-200);
+    --tw-prose-headings: var(--color-phosphor-300);
+    --tw-prose-links: var(--color-phosphor-300);
+    --tw-prose-bold: var(--color-void-50);
+    --tw-prose-counters: var(--color-void-300);
+    --tw-prose-bullets: var(--color-phosphor-400);
+    --tw-prose-quotes: var(--color-void-200);
+    --tw-prose-code: var(--color-void-50);
+    --tw-prose-td-borders: var(--color-void-700);
+  }
+
+  & :where(h2, h3, h4) {
+    line-height: 1.5;
+  }
+  /* Never bigger than the post's title (text-base on phones) */
+  & :where(h2) {
+    font-size: 1rem;
+
+    @variant md {
+      font-size: 1.5rem;
+    }
+  }
+  & :where(h3, h4) {
+    font-size: 1rem;
+  }
+  & :where(pre) {
+    border: 2px solid var(--frame-color);
+    border-radius: 0;
+  }
+  /* Inline code: a faint tint instead of the plugin's literal backticks */
+  & :where(code):not(:where(pre code)) {
+    padding: 0.1em 0.3em;
+    background: color-mix(in oklab, var(--frame-color) 12%, transparent);
+    font-weight: 500;
+    &::before,
+    &::after {
+      content: none;
+    }
+  }
+}
+
+/* Code blocks (Shiki, set up in astro.config.mjs) switch to their dark theme with the site */
+.astro-code,
+.astro-code span {
+  @variant dark {
+    color: var(--shiki-dark) !important;
+    background-color: var(--shiki-dark-bg) !important;
+  }
+}
+
+/*
+ * For pages reached by clicking around a section (blog posts): the panel lines appear without
+ * drawing in, so they don't redraw on every click. Put it on the .panels grid.
+ */
+@utility edges-static {
+  & > *::before,
+  & > *::after {
+    animation: none;
+  }
+}

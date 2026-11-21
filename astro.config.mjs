@@ -10,6 +10,10 @@ export default defineConfig({
   trailingSlash: 'always',
   vite: { plugins: [tailwindcss()] },
   integrations: [sitemap()],
+  // Code blocks carry both themes; global.css switches to the dark one with the site's theme
+  markdown: {
+    shikiConfig: { themes: { light: 'github-light', dark: 'github-dark' } },
+  },
   fonts: [
     {
       provider: fontProviders.google(),
