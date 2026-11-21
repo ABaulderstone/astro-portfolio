@@ -121,7 +121,8 @@
   :root {
     color-scheme: light dark;
     --frame-inset: 0.75rem;
-    --frame-width: 0.5rem;
+    /* Thinner on phones (4px), where 8px crowds a narrow screen */
+    --frame-width: 0.25rem;
     --nav-toggle-size: 3.5rem;
     --frame-inset-bottom: calc(var(--nav-toggle-size) + 2 * var(--frame-inset));
     --frame-color: var(--color-nebula-600);
@@ -138,6 +139,7 @@
 
     @variant md {
       --frame-inset: clamp(2.5rem, 7vw, 6rem);
+      --frame-width: 0.5rem;
       --frame-inset-bottom: var(--frame-inset);
     }
 
@@ -407,4 +409,24 @@
     transparent 0
   );
   background-size: 8px 8px;
+}
+
+/*
+ * Scroll shadows for a scrolling region: a faint frame-colour tint along whichever edge has
+ * more content past it, so it reads as scrollable where scrollbars are hidden (iOS Safari).
+ * Pure CSS: page-coloured covers attached to the content (local) hide the tints (scroll) when
+ * that end is reached. It paints the background, so don't combine it with a pattern-*.
+ */
+@utility scroll-shadow {
+  --scroll-shadow-bg: var(--color-paper-100);
+  --scroll-shadow-ink: color-mix(in oklab, var(--frame-color) 40%, transparent);
+  background:
+    linear-gradient(var(--scroll-shadow-bg) 30%, transparent) top / 100% 2.5rem no-repeat local,
+    linear-gradient(transparent, var(--scroll-shadow-bg) 70%) bottom / 100% 2.5rem no-repeat local,
+    linear-gradient(var(--scroll-shadow-ink), transparent) top / 100% 1rem no-repeat scroll,
+    linear-gradient(transparent, var(--scroll-shadow-ink)) bottom / 100% 1rem no-repeat scroll;
+
+  @variant dark {
+    --scroll-shadow-bg: var(--color-void-950);
+  }
 }
