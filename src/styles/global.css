@@ -121,7 +121,8 @@
   :root {
     color-scheme: light dark;
     --frame-inset: 0.75rem;
-    --frame-width: 0.5rem;
+    /* Thinner on phones (4px), where 8px crowds a narrow screen */
+    --frame-width: 0.25rem;
     --nav-toggle-size: 3.5rem;
     --frame-inset-bottom: calc(var(--nav-toggle-size) + 2 * var(--frame-inset));
     --frame-color: var(--color-nebula-600);
@@ -138,6 +139,7 @@
 
     @variant md {
       --frame-inset: clamp(2.5rem, 7vw, 6rem);
+      --frame-width: 0.5rem;
       --frame-inset-bottom: var(--frame-inset);
     }
 
