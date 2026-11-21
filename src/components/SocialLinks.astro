@@ -1,0 +1,37 @@
+---
+// Links to my profiles elsewhere (src/lib/socials.ts). By default each is an icon and a label,
+// in a column; `compact` shows just the icons in a row, named for screen readers with aria-label.
+import { socials } from '../lib/socials';
+import GitHubIcon from './icons/GitHubIcon.astro';
+import InstagramIcon from './icons/InstagramIcon.astro';
+import LinkedInIcon from './icons/LinkedInIcon.astro';
+
+interface Props {
+	compact?: boolean;
+	class?: string;
+}
+
+const { compact = false, class: className } = Astro.props;
+
+const icons = { GitHub: GitHubIcon, LinkedIn: LinkedInIcon, Instagram: InstagramIcon };
+const links = socials.map((social) => ({ ...social, Icon: icons[social.label] }));
+
+const linkClass =
+	'flex min-h-11 items-center gap-2 text-nebula-600 hover:text-ember-600 focus-visible:outline-2 focus-visible:outline-ember-500 dark:text-phosphor-300 dark:hover:text-ember-400';
+---
+<ul aria-label="Social links" class:list={[compact && 'flex items-center justify-center gap-4', className]}>
+	{links.map(({ href, label, Icon }) => (
+		<li>
+			{compact ? (
+				<a {href} aria-label={label} class:list={[linkClass, 'min-w-11 justify-center']}>
+					<Icon class="size-6" />
+				</a>
+			) : (
+				<a {href} class={linkClass}>
+					<Icon class="size-6 shrink-0" />
+					{label}
+				</a>
+			)}
+		</li>
+	))}
+</ul>

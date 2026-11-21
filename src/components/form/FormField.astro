@@ -11,9 +11,11 @@ type Props = Omit<HTMLAttributes<'input'> & HTMLAttributes<'textarea'>, 'type' |
 	/** Shown below the field while it's invalid */
 	error: string;
 	type?: 'text' | 'email' | 'textarea';
+	/** Extra classes for the input or textarea (a height, say) */
+	fieldClass?: string;
 };
 
-const { name, label, error, type = 'text', rows = 6, ...attrs } = Astro.props;
+const { name, label, error, type = 'text', rows = 6, fieldClass, ...attrs } = Astro.props;
 const id = `field-${name}`;
 
 // Borders are a lighter step of the frame colour (3:1 against the input), darkening on focus,
@@ -27,12 +29,12 @@ const controlClass = [
 ];
 ---
 <div>
-	<label for={id} class="mb-2 block font-medium text-nebula-700 dark:text-phosphor-300">{label}</label>
+	<label for={id} class="mb-1 block font-medium text-nebula-700 dark:text-phosphor-300">{label}</label>
 	{type === 'textarea' ? (
-		<textarea {id} {name} {rows} class:list={[controlClass, 'resize-y']} {...attrs} />
+		<textarea {id} {name} {rows} class:list={[controlClass, 'resize-y', fieldClass]} {...attrs} />
 	) : (
-		<input {id} {name} {type} class:list={controlClass} {...attrs} />
+		<input {id} {name} {type} class:list={[controlClass, fieldClass]} {...attrs} />
 	)}
 	<!-- invisible (not hidden), so its line stays reserved -->
-	<p class="invisible mt-1 min-h-6 text-sm text-ember-600 peer-user-invalid:visible lg:text-base dark:text-ember-400">{error}</p>
+	<p class="invisible min-h-6 text-sm text-ember-600 peer-user-invalid:visible lg:text-base dark:text-ember-400">{error}</p>
 </div>
