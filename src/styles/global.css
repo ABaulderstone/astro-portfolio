@@ -124,10 +124,13 @@
     --frame-color: var(--color-nebula-600);
     /* Patterns read fainter on paper than on black, so light mode gets a little more ink */
     --pattern-boost: 1.25;
+    /* Starfield (src/components/Starfield.astro) is a little softer on paper than on black */
+    --starfield-strength: 0.85;
 
     @variant dark {
       --frame-color: var(--color-phosphor-400);
       --pattern-boost: 1;
+      --starfield-strength: 1;
     }
 
     @variant md {
