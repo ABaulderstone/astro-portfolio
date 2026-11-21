@@ -1,9 +1,10 @@
 ---
-# Placeholder project: replace with a real write-up
+# Placeholder project: replace with a real write-up and links
 title: This portfolio
 description: Placeholder write-up of this site, a static Astro site with a pixel-art frame, no client JS to speak of and browser tests for accessibility and layout.
 date: 2026-11-01
 stack: [Astro, TypeScript, Tailwind CSS, Vitest, Playwright, GitHub Actions]
+repo: https://github.com/ABaulderstone/astro-portfolio
 url: https://alexbaulderstone.com
 ---
 

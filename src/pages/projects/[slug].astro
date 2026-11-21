@@ -2,6 +2,9 @@
 import { render } from 'astro:content';
 import ChevronLeftIcon from '../../components/icons/ChevronLeftIcon.astro';
 import ChevronRightIcon from '../../components/icons/ChevronRightIcon.astro';
+import GitHubIcon from '../../components/icons/GitHubIcon.astro';
+import GlobeIcon from '../../components/icons/GlobeIcon.astro';
+import LinkIcon from '../../components/icons/LinkIcon.astro';
 import StackIcon from '../../components/icons/StackIcon.astro';
 import Frame from '../../layouts/Frame.astro';
 import { getProjects, type Project } from '../../lib/projects';
@@ -24,29 +27,49 @@ const { project, newer, older } = Astro.props;
 const { title, description, date, stack, repo, url } = project.data;
 const { Content } = await render(project);
 
+// Every project has a repo; the live site is left out when there isn't one
 const links = [
-	url && { href: url, label: 'Live site' },
-	repo && { href: repo, label: 'Source code' },
+	url && { href: url, label: 'Live site', Icon: GlobeIcon },
+	{ href: repo, label: 'GitHub', Icon: GitHubIcon },
 ].filter((link) => !!link);
 
+const linkClass =
+	'flex min-h-11 items-center gap-2 text-nebula-600 hover:text-ember-600 focus-visible:outline-2 focus-visible:outline-ember-500 dark:text-phosphor-300 dark:hover:text-ember-400';
 const arrowClass =
 	'flex size-11 shrink-0 items-center justify-center hover:text-ember-600 focus-visible:outline-2 focus-visible:outline-ember-500 dark:text-phosphor-400 dark:hover:text-ember-400';
 ---
 <Frame title={`${title} | Alex Baulderstone`} {description} panels>
 	<!--
-		Like a blog post, with the project's stack in place of the tags.
-		Mobile: a title bar, the project (stack in its header), and a bar with arrows to the older
-		and newer projects.
-		md+: a title bar, then a left column of the stack and a link back to all projects, beside
-		the project.
+		Like a blog post, with the project's links and stack in place of the tags.
+		Mobile: a title bar, the project (links and stack in its header), and a bar with arrows to
+		the older and newer projects.
+		md+: a title bar, then a left column of the links, the stack and a link back to all
+		projects, beside the project.
 		Projects are reached by clicking between them, so the lines don't draw in (edges-static).
 	-->
-	<div class="panels edges-static grid-rows-[auto_1fr_auto] md:grid-cols-[minmax(16rem,1fr)_3fr] md:grid-rows-[auto_1fr_auto] lg:grid-cols-[minmax(20rem,1fr)_3fr]">
+	<div class="panels edges-static grid-rows-[auto_1fr_auto] md:grid-cols-[minmax(16rem,1fr)_3fr] md:grid-rows-[auto_auto_1fr_auto] lg:grid-cols-[minmax(20rem,1fr)_3fr]">
 		<div class="edge-b p-5 text-center md:col-span-2 md:p-8 short:md:py-4">
 			<a href="/projects/" class="font-heading text-2xl leading-normal hover:text-ember-600 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ember-500 md:text-[2rem] dark:text-phosphor-300 dark:hover:text-ember-400">Projects</a>
 		</div>
 
-		<aside aria-label="Stack" class="edge-b pattern-hatch pattern-on-hover p-8 max-md:hidden md:col-start-1 md:row-start-2 short:p-5">
+		<aside aria-label="Links" class="edge-b pattern-grid pattern-on-hover p-8 max-md:hidden md:col-start-1 md:row-start-2 short:p-5">
+			<h2 class="flex items-center gap-2 text-base leading-normal 3xl:text-2xl">
+				<LinkIcon class="size-6 shrink-0 text-nebula-600 3xl:size-8 dark:text-phosphor-400" />
+				Links
+			</h2>
+			<ul class="mt-2 lg:text-fluid">
+				{links.map(({ href, label, Icon }) => (
+					<li>
+						<a {href} class={linkClass}>
+							<Icon class="size-6 shrink-0" />
+							{label}
+						</a>
+					</li>
+				))}
+			</ul>
+		</aside>
+
+		<aside aria-label="Stack" class="edge-b pattern-hatch pattern-on-hover p-8 max-md:hidden md:col-start-1 md:row-start-3 short:p-5">
 			<h2 class="flex items-center gap-2 text-base leading-normal 3xl:text-2xl">
 				<StackIcon class="size-6 shrink-0 text-nebula-600 3xl:size-8 dark:text-phosphor-400" />
 				Stack
@@ -59,7 +82,7 @@ const arrowClass =
 		</aside>
 
 		<!-- min-w-0 so a wide code block scrolls inside itself rather than widening the grid -->
-		<div class="min-h-0 min-w-0 max-md:edge-b md:col-start-2 md:row-span-2 md:row-start-2 md:edge-l">
+		<div class="min-h-0 min-w-0 max-md:edge-b md:col-start-2 md:row-span-3 md:row-start-2 md:edge-l">
 			<!-- Scrolls when the write-up outgrows the panel (see the about page's Bio region) -->
 			<div
 				role="region"
@@ -72,14 +95,18 @@ const arrowClass =
 						<h1 id="project-title" class="text-base leading-normal md:text-2xl lg:text-[2rem]">{title}</h1>
 						<p class="mt-4 text-sm lg:text-base">
 							<time datetime={date.toISOString()}>{date.getUTCFullYear()}</time>
-							{links.map((link) => (
-								<>
-									<span aria-hidden="true"> · </span>
-									<a href={link.href} class="text-nebula-600 underline underline-offset-4 hover:text-ember-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ember-500 dark:text-phosphor-300 dark:hover:text-ember-400">{link.label}</a>
-								</>
-							))}
 						</p>
-						<!-- On md+ the stack is in its own panel -->
+						<!-- On md+ the links and stack are in their own panels -->
+						<ul class="mt-2 flex flex-wrap gap-x-6 md:hidden" aria-label="Links">
+							{links.map(({ href, label, Icon }) => (
+								<li>
+									<a {href} class={linkClass}>
+										<Icon class="size-6 shrink-0" />
+										{label}
+									</a>
+								</li>
+							))}
+						</ul>
 						<ul class="mt-4 flex flex-wrap gap-2 md:hidden" aria-label="Stack">
 							{stack.map((tech) => (
 								<li class="border-2 border-(--frame-color) px-2 py-0.5 text-sm">{tech}</li>
@@ -94,7 +121,7 @@ const arrowClass =
 		</div>
 
 		<!-- md+: back to the list. The link fills the panel, so all of it is clickable. -->
-		<div class="pattern-dots pattern-on-hover max-md:hidden md:col-start-1 md:row-start-3">
+		<div class="pattern-dots pattern-on-hover max-md:hidden md:col-start-1 md:row-start-4">
 			<a href="/projects/" class="flex items-center gap-2 p-8 font-heading text-base leading-normal hover:text-ember-600 focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-ember-500 short:p-5 dark:text-phosphor-300 dark:hover:text-ember-400">
 				<ChevronLeftIcon class="size-6 shrink-0" />
 				All projects
