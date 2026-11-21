@@ -1,35 +1,49 @@
 import { expect, test } from '@playwright/test';
 
-// Picking a job is a radio group styled as a timeline; CSS shows the selected job's details
-// and stack, so only one of each should ever be visible
-const visibleJobs = (page: import('@playwright/test').Page, selector: string) =>
-  page.evaluate(
-    (selector) => [...document.querySelectorAll<HTMLElement>(selector)].filter((el) => el.checkVisibility()).map((el) => el.dataset.job),
-    selector,
-  );
+// The URL hash picks the job: CSS shows the details, stack and (mobile) bar of the job whose
+// article is the :target, or the newest job with no hash, so only one job should ever show
+const visibleJobs = (page: import('@playwright/test').Page) =>
+  page.evaluate(() => [
+    ...new Set([...document.querySelectorAll<HTMLElement>('[data-job]')].filter((el) => el.checkVisibility()).map((el) => el.dataset.job)),
+  ]);
 
-test('the newest job is shown by default', async ({ page }) => {
+const jobIds = (page: import('@playwright/test').Page) =>
+  page.locator('nav[aria-label="Career timeline"] ol a').evaluateAll((links) => links.map((a) => a.getAttribute('href')!.slice(1)));
+
+test('the newest job is shown with no hash, or an unknown one', async ({ page }) => {
   await page.goto('/career/');
-  const first = await page.locator('input[name="job"]').first().getAttribute('id');
-  expect(await visibleJobs(page, 'article[data-job]')).toEqual([first!.replace(/^job-/, '')]);
-  expect(await visibleJobs(page, 'ul[data-job]')).toEqual([first!.replace(/^job-/, '')]);
+  const [newest] = await jobIds(page);
+  expect(await visibleJobs(page)).toEqual([newest]);
+  await page.goto('/career/#not-a-job');
+  expect(await visibleJobs(page)).toEqual([newest]);
 });
 
-test('clicking a job swaps the details and stack', async ({ page }) => {
+test('a hash in the URL selects that job', async ({ page }) => {
   await page.goto('/career/');
-  const second = page.locator('input[name="job"]').nth(1);
-  const id = (await second.getAttribute('id'))!.replace(/^job-/, '');
-  await page.locator(`label[for="job-${id}"]`).click();
-  expect(await visibleJobs(page, 'article[data-job]')).toEqual([id]);
-  expect(await visibleJobs(page, 'ul[data-job]')).toEqual([id]);
+  const [, second] = await jobIds(page);
+  await page.goto(`/career/#${second}`);
+  expect(await visibleJobs(page)).toEqual([second]);
 });
 
-test('the arrow keys move between jobs', async ({ page }) => {
+test('clicking a job on the timeline puts it in the URL and shows it', async ({ page }) => {
   await page.goto('/career/');
-  const radios = page.locator('input[name="job"]');
-  await radios.first().focus();
-  await page.keyboard.press('ArrowDown');
-  const id = (await radios.nth(1).getAttribute('id'))!.replace(/^job-/, '');
-  await expect(radios.nth(1)).toBeChecked();
-  expect(await visibleJobs(page, 'article[data-job]')).toEqual([id]);
+  const [newest, second] = await jobIds(page);
+  await page.locator(`nav[aria-label="Career timeline"] ol a[href="#${second}"]`).click();
+  await expect(page).toHaveURL(new RegExp(`#${second}$`));
+  expect(await visibleJobs(page)).toEqual([second]);
+  await expect(page.locator(`article#${second}`)).toBeFocused();
+
+  await page.goBack();
+  expect(await visibleJobs(page)).toEqual([newest]);
+});
+
+test('on mobile the arrows step to earlier and later jobs', async ({ page, isMobile }) => {
+  test.skip(!isMobile, 'the arrows are mobile only');
+  await page.goto('/career/');
+  const [newest, second] = await jobIds(page);
+  await expect(page.getByRole('link', { name: /^Later:/ })).toHaveCount(0);
+  await page.getByRole('link', { name: /^Earlier:/ }).click();
+  expect(await visibleJobs(page)).toEqual([second]);
+  await page.getByRole('link', { name: /^Later:/ }).click();
+  expect(await visibleJobs(page)).toEqual([newest]);
 });

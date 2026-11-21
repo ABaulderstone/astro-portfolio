@@ -1,32 +1,45 @@
 ---
-import { getCollection, render } from 'astro:content';
+import { getCollection } from 'astro:content';
+import ChevronLeftIcon from '../components/icons/ChevronLeftIcon.astro';
+import ChevronRightIcon from '../components/icons/ChevronRightIcon.astro';
 import StackIcon from '../components/icons/StackIcon.astro';
 import Frame from '../layouts/Frame.astro';
 
-// Newest first; the newest job is selected when the page loads
-const jobs = await Promise.all(
-	(await getCollection('career'))
-		.sort((a, b) => b.data.start.getTime() - a.data.start.getTime())
-		.map(async (job) => ({ ...job, Content: (await render(job)).Content })),
-);
+// One job per company, spanning its roles (listed newest first). Newest job first; it's shown
+// when the URL has no hash.
+const jobs = (await getCollection('career'))
+	.map((job) => ({ ...job, start: job.data.roles.at(-1)!.start, end: job.data.roles[0].end }))
+	.sort((a, b) => b.start.getTime() - a.start.getTime());
 
 const year = (date: Date) => date.getUTCFullYear();
-const dates = ({ start, end }: { start: Date; end?: Date }) => `${year(start)} - ${end ? year(end) : 'Now'}`;
+const years = ({ start, end }: { start: Date; end?: Date }) =>
+	end && year(end) === year(start) ? `${year(start)}` : `${year(start)} - ${end ? year(end) : 'Now'}`;
+const month = (date: Date) => date.toLocaleString('en-AU', { month: 'short', year: 'numeric', timeZone: 'UTC' });
+const isoMonth = (date: Date) => date.toISOString().slice(0, 7);
 
-// Picking a job is a radio group, so it needs no JS: each job's details and stack are rendered
-// up front and hidden, and these rules show the pair whose radio is checked. Entry ids are file
-// slugs, so they're safe in selectors.
+// The URL hash is the state, so it needs no JS: each job's article has the job's id
+// (/career/#coder-academy), every job's details, stack and mobile bar are rendered up front and
+// hidden, and these rules show the set whose article is the :target, plus fill its timeline
+// node. With no hash, or one that matches no job, the newest job shows. Entry ids are file
+// slugs, so they're safe in selectors (just don't name a file after another id on the page,
+// like main.md). Shown elements use their --shown display, block by default.
 const showSelected = jobs
-	.map(({ id }) => `.career:has(#job-${id}:checked) {
-		article[data-job="${id}"] { display: block; }
-		ul[data-job="${id}"] { display: flex; }
-	}`)
+	.map(({ id }, i) => {
+		const selected = [`.career:has(#${id}:target)`, ...(i === 0 ? ['.career:not(:has(article:target))'] : [])];
+		const within = (selector: string) => selected.map((s) => `${s} ${selector}`).join(', ');
+		return `${within(`[data-job="${id}"]`)} { display: var(--shown, block); }
+${within(`[data-node="${id}"]`)} { background: var(--frame-color); }`;
+	})
 	.join('\n');
+
+const arrowClass =
+	'flex size-11 shrink-0 items-center justify-center text-nebula-600 hover:text-ember-600 focus-visible:outline-2 focus-visible:outline-ember-500 dark:text-phosphor-400 dark:hover:text-ember-400';
 ---
 <Frame title="Career | Alex Baulderstone" description="Alex Baulderstone's career as a software engineer: roles, highlights and the tech stack behind each one." panels>
 	<style is:inline set:html={showSelected}></style>
 	<!--
-		Mobile: one column, with the details taking the spare height.
+		Mobile: one column, with the details taking the spare height. The timeline runs across,
+		oldest on the left, with a bar for the selected job and arrows to the jobs either side.
 		md: title bar, then the timeline and stack stacked on the left beside the details (like about).
 		lg: title bar, then three columns: timeline | details | stack.
 		Lines draw in order: mobile top to bottom; desktop title, the details' divider, then the rest.
@@ -36,68 +49,94 @@ const showSelected = jobs
 			<h1 class="text-center text-2xl leading-normal md:text-[2rem]">Career</h1>
 		</div>
 
-		<section class="p-5 [--edge-delay:150ms] max-lg:edge-b md:p-8 short:md:p-5 md:[--edge-delay:750ms] md:[--edge-origin:right]">
-			<fieldset class="min-w-0">
-				<legend class="sr-only">Choose a role</legend>
-				<ol class="space-y-5 md:space-y-8">
-					{jobs.map((job, i) => (
-						<li class="relative before:absolute before:top-2 before:-bottom-7 before:left-1 before:w-1 3xl:before:top-3 3xl:before:left-1.5 before:bg-(--frame-color) last:before:hidden md:before:-bottom-10">
-							<input
-								type="radio"
-								name="job"
-								id={`job-${job.id}`}
-								class="peer sr-only"
-								checked={i === 0}
-								aria-controls="job-details job-stack"
-							/>
-							<!-- The node fills in when its job is selected -->
-							<label
-								for={`job-${job.id}`}
-								class="group block cursor-pointer pl-8 peer-focus-visible:outline-2 peer-focus-visible:outline-offset-4 peer-focus-visible:outline-ember-500"
-							>
-								<span class="absolute top-0.5 left-0 size-3 border-2 3xl:top-1.5 3xl:size-4 border-(--frame-color) bg-paper-100 in-[li:has(:checked)]:bg-(--frame-color) dark:bg-void-950 dark:in-[li:has(:checked)]:bg-(--frame-color)" aria-hidden="true"></span>
-								<span class="block font-heading text-base leading-normal text-nebula-600 3xl:text-2xl group-hover:text-ember-600 dark:text-phosphor-300 dark:group-hover:text-ember-400">{dates(job.data)}</span>
-								<span class="mt-1 block font-bold lg:text-fluid">{job.data.company}</span>
-								<span class="block max-md:hidden lg:text-fluid">{job.data.role}</span>
-							</label>
-						</li>
-					))}
-				</ol>
-			</fieldset>
-		</section>
+		<nav aria-label="Career timeline" class="p-5 [--edge-delay:150ms] max-lg:edge-b max-md:pb-3 md:p-8 short:md:p-5 md:[--edge-delay:750ms] md:[--edge-origin:right]">
+			<!-- Mobile: nodes on a horizontal line, oldest first (row-reverse, as the list is newest
+			     first), with their text visually hidden. md+: a vertical line with the text beside it. -->
+			<ol class="relative flex flex-row-reverse justify-between before:absolute before:inset-x-4 before:top-1/2 before:h-1 before:-translate-y-1/2 before:bg-(--frame-color) md:block md:space-y-8 md:before:hidden">
+				{jobs.map((job) => (
+					<li class="relative md:before:absolute md:before:top-2 md:before:-bottom-10 md:before:left-1 md:before:w-1 md:before:bg-(--frame-color) md:last:before:hidden 3xl:before:top-3 3xl:before:left-1.5">
+						<a
+							href={`#${job.id}`}
+							class="group flex size-8 items-center justify-center text-paper-800 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ember-500 md:block md:size-auto md:pl-8 dark:text-void-200"
+						>
+							<!-- Fills in when its job is selected -->
+							<span data-node={job.id} class="size-4 border-2 border-(--frame-color) bg-paper-100 md:absolute md:top-0.5 md:left-0 md:size-3 dark:bg-void-950 3xl:top-1.5 3xl:size-4" aria-hidden="true"></span>
+							<span class="block font-heading text-base leading-normal text-nebula-600 group-hover:text-ember-600 max-md:sr-only dark:text-phosphor-300 dark:group-hover:text-ember-400 3xl:text-2xl">{years(job)}</span>
+							<span class="mt-1 block font-bold max-md:sr-only lg:text-fluid">{job.data.company}</span>
+							<span class="block max-md:sr-only lg:text-fluid">{job.data.roles[0].title}</span>
+						</a>
+					</li>
+				))}
+			</ol>
+			<!-- Mobile only: the selected job, with arrows to the earlier and later ones -->
+			<div class="mt-3 md:hidden">
+				{jobs.map((job, i) => {
+					const later = jobs[i - 1];
+					const earlier = jobs[i + 1];
+					return (
+						<div data-job={job.id} class="hidden items-center justify-between gap-2 [--shown:flex]">
+							{earlier ? (
+								<a href={`#${earlier.id}`} aria-label={`Earlier: ${earlier.data.company}`} class={arrowClass}>
+									<ChevronLeftIcon class="size-6" />
+								</a>
+							) : <span class="size-11 shrink-0" />}
+							<p class="text-center">
+								<span class="block font-heading text-base leading-normal text-nebula-600 dark:text-phosphor-300">{years(job)}</span>
+								<span class="font-bold">{job.data.company}</span>
+							</p>
+							{later ? (
+								<a href={`#${later.id}`} aria-label={`Later: ${later.data.company}`} class={arrowClass}>
+									<ChevronRightIcon class="size-6" />
+								</a>
+							) : <span class="size-11 shrink-0" />}
+						</div>
+					);
+				})}
+			</div>
+		</nav>
 
 		<section class="min-h-0 [--edge-delay:300ms] max-md:edge-b md:col-start-2 md:row-span-2 md:row-start-2 md:edge-l md:[--edge-delay:400ms] lg:row-span-1">
-			<!-- Scrolls when a job's text outgrows the panel (see the about page's Bio region) -->
+			<!-- Scrolls when a job's text outgrows the panel (see the about page's Bio region). The
+			     padding is on each article rather than this wrapper, so jumping to an article's hash
+			     scrolls the panel to the very top. Articles take focus when targeted, so screen
+			     readers follow to the new details. -->
 			<div
 				id="job-details"
 				role="region"
 				aria-label="Role details"
 				tabindex="0"
-				class="scroll-shadow h-full overflow-y-auto p-5 focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-ember-500 md:p-8 lg:p-10 xl:p-12 2xl:p-16 short:md:p-6"
+				class="scroll-shadow h-full overflow-y-auto focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-ember-500"
 			>
-				{jobs.map(({ id, data, Content }) => (
-					<article data-job={id} class="mx-auto hidden max-w-[70ch] lg:text-fluid">
-						<h2 class="text-base leading-normal md:text-2xl 3xl:text-[2rem]">{data.role}</h2>
-						<p class="mt-3 font-bold">{data.company}{data.location && <span class="font-normal"> · {data.location}</span>}</p>
-						<p class="mt-1">
-							<time datetime={data.start.toISOString().slice(0, 7)}>{year(data.start)}</time>{' - '}
-							{data.end ? <time datetime={data.end.toISOString().slice(0, 7)}>{year(data.end)}</time> : 'Now'}
-						</p>
-						<div class="mt-6 space-y-4 lg:leading-relaxed [&_ul]:list-disc [&_ul]:space-y-2 [&_ul]:pl-6 short:lg:leading-normal">
-							<Content />
+				{jobs.map(({ id, data }) => (
+					<article id={id} data-job={id} tabindex="-1" class="hidden p-5 outline-none md:p-8 lg:p-10 lg:text-fluid xl:p-12 2xl:p-16 short:md:p-6">
+						<div class="mx-auto max-w-[70ch]">
+							<h2 class="text-2xl leading-normal 3xl:text-[2rem]">{data.company}</h2>
+							{data.roles.map((role) => (
+								<section class="mt-8 first-of-type:mt-6">
+									<h3 class="text-base leading-normal">{role.title}</h3>
+									<p class="mt-1">
+										<time datetime={isoMonth(role.start)}>{month(role.start)}</time>{' - '}
+										{role.end ? <time datetime={isoMonth(role.end)}>{month(role.end)}</time> : 'Now'}
+									</p>
+									{role.summary && <p class="mt-3">{role.summary}</p>}
+									<ul class="mt-3 list-disc space-y-2 pl-6 lg:leading-relaxed short:lg:leading-normal">
+										{role.highlights.map((highlight) => <li>{highlight}</li>)}
+									</ul>
+								</section>
+							))}
 						</div>
 					</article>
 				))}
 			</div>
 		</section>
 
-		<section id="job-stack" class="pattern-dots pattern-on-hover p-5 md:col-start-1 md:row-start-3 md:p-8 short:md:p-5 lg:col-start-3 lg:row-start-2 lg:edge-l lg:[--edge-delay:550ms]">
+		<section class="pattern-dots pattern-on-hover p-5 md:col-start-1 md:row-start-3 md:p-8 short:md:p-5 lg:col-start-3 lg:row-start-2 lg:edge-l lg:[--edge-delay:550ms]">
 			<h2 class="flex items-center gap-2 text-base leading-normal 3xl:text-2xl">
 				<StackIcon class="size-6 shrink-0 text-nebula-600 3xl:size-8 dark:text-phosphor-400" />
 				Stack
 			</h2>
 			{jobs.map(({ id, data }) => (
-				<ul data-job={id} class="mt-4 hidden flex-wrap gap-2" aria-label={`Stack at ${data.company}`}>
+				<ul data-job={id} class="mt-4 hidden flex-wrap gap-2 [--shown:flex]" aria-label={`Stack at ${data.company}`}>
 					{data.stack.map((tech) => (
 						<li class="border-2 border-(--frame-color) px-2 py-0.5 text-sm lg:text-base 3xl:text-lg">{tech}</li>
 					))}
