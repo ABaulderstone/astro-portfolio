@@ -12,8 +12,7 @@ import Frame from '../layouts/Frame.astro';
 		padding tightens, the name panel hugs its content and the other two share what's left, so
 		the page still fits one screen; the main text scrolls inside its panel if it has to.
 		Text: body text is text-fluid from lg; Press Start 2P headings step up a size at 3xl.
-		Each section reveals a background pattern on hover (pattern-* in global.css); the main text
-		gets a lighter one since it's where people read.
+		The name and location panels reveal a background pattern on hover (pattern-* in global.css).
 		Lines draw in order: mobile top to bottom; desktop title, divider, then the left column's
 		lines growing out of the divider.
 	-->
@@ -21,7 +20,7 @@ import Frame from '../layouts/Frame.astro';
 		<div class="edge-b p-5 md:col-span-2 md:p-8 short:md:py-4">
 			<h1 class="text-center text-2xl leading-normal md:text-[2rem]">About</h1>
 		</div>
-		<section class="edge-b pattern-crosshatch pattern-on-hover flex items-center justify-center p-5 text-center [--edge-delay:150ms] md:p-8 short:md:p-5 lg:px-4 md:[--edge-delay:750ms] md:[--edge-origin:right]">
+		<section class="edge-b pattern-hatch pattern-on-hover flex items-center justify-center p-5 text-center [--edge-delay:150ms] md:p-8 short:md:p-5 lg:px-4 md:[--edge-delay:750ms] md:[--edge-origin:right]">
 			<!-- Each size needs a wide enough column: "Baulderstone" is 288px at 24px, 384px at 32px.
 			     From lg, 12ch (every Press Start 2P glyph is 1ch wide) keeps it on two lines. -->
 			<h2 class="text-base leading-normal lg:max-w-[12ch] lg:text-2xl 3xl:text-[2rem]">Alex Baulderstone</h2>
@@ -33,7 +32,7 @@ import Frame from '../layouts/Frame.astro';
 			</h2>
 			<p class="mt-3 lg:text-fluid">Adelaide, Australia</p>
 		</section>
-		<section class="pattern-grid pattern-on-hover min-h-0 [--edge-delay:450ms] [--pattern-strength:10%] max-md:edge-b md:col-start-2 md:row-span-3 md:row-start-2 md:edge-l md:[--edge-delay:400ms]">
+		<section class="min-h-0 [--edge-delay:450ms] max-md:edge-b md:col-start-2 md:row-span-3 md:row-start-2 md:edge-l md:[--edge-delay:400ms]">
 			<!-- Scrolls when the text outgrows the panel. The scrolling is on this wrapper, not the
 			     section, which would clip the section's edge line. Focusable so keyboard users can
 			     scroll it too. -->
@@ -61,7 +60,7 @@ import Frame from '../layouts/Frame.astro';
 			</div>
 			</div>
 		</section>
-		<section class="pattern-hatch pattern-on-hover p-5 md:p-8 short:md:p-5">
+		<section class="p-5 md:p-8 short:md:p-5">
 			<h2 class="flex items-center gap-2 text-base leading-normal 3xl:text-2xl">
 				<HeadphonesIcon class="size-6 shrink-0 text-nebula-600 3xl:size-8 dark:text-phosphor-400" />
 				Currently listening
