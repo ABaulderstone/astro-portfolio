@@ -1,9 +1,12 @@
 ---
+import Starfield from '../components/Starfield.astro';
 import Frame from '../layouts/Frame.astro';
 ---
 <Frame title="Alex Baulderstone | Developer" description="Alex Baulderstone is a developer.">
-	<!-- Press Start 2P is drawn on an 8px grid, so sizes stay at multiples of 8px -->
-	<div class="flex flex-1 flex-col items-center justify-center text-center">
+	<Starfield />
+	<!-- Press Start 2P is drawn on an 8px grid, so sizes stay at multiples of 8px. `relative`
+	     paints this above the starfield. -->
+	<div class="relative flex flex-1 flex-col items-center justify-center text-center">
 		<h1 class="text-2xl leading-normal md:text-[2rem] lg:text-[2.5rem] xl:text-5xl">Alex Baulderstone</h1>
 		<h2 class="mt-6 font-heading text-base md:text-2xl">Developer</h2>
 	</div>
