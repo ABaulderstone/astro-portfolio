@@ -37,4 +37,20 @@ const blog = defineCollection({
   }),
 });
 
-export const collections = { career, blog };
+// Projects: one Markdown file per project, its file name being the URL slug (/projects/<slug>/),
+// newest first by `date`, linking to its GitHub `repo` and, if it has one, its deployed `url`. Drafts show in dev
+// but are left out of the build.
+const projects = defineCollection({
+  loader: glob({ pattern: '*.md', base: './src/content/projects' }),
+  schema: z.object({
+    title: z.string(),
+    description: z.string(),
+    date: z.coerce.date(),
+    stack: z.array(z.string()).min(1),
+    repo: z.url(),
+    url: z.url().optional(),
+    draft: z.boolean().default(false),
+  }),
+});
+
+export const collections = { career, blog, projects };

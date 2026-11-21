@@ -452,7 +452,7 @@
 }
 
 /*
- * Blog post text: the typography plugin's prose, in the site's colours (accent headings and
+ * Blog post and project text: the typography plugin's prose, in the site's colours (accent headings and
  * links, grey body text). Press Start 2P headings stay on its 8px grid.
  */
 @utility prose-site {
