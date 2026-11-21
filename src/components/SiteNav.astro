@@ -7,6 +7,7 @@ import MenuIcon from './icons/MenuIcon.astro';
 // bottom-right that opens a slide-in drawer (popover API, so no client JS).
 const links = [
   { href: '/about/', label: 'About' },
+  { href: '/career/', label: 'Career' },
   { href: '/blog/', label: 'Blog' },
   { href: '/projects/', label: 'Projects' },
   { href: '/contact/', label: 'Contact' },
@@ -36,7 +37,7 @@ const focusClass =
     >
       <HomeIcon />
     </a>
-    <ul class="flex gap-10">
+    <ul class="flex gap-6 lg:gap-10">
       {links.map(({ href, label }) => (
         <li>
           <a href={href} class:list={[linkClass, focusClass]} aria-current={isCurrent(href) ? 'page' : undefined}>

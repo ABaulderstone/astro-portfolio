@@ -430,3 +430,23 @@
     --scroll-shadow-bg: var(--color-void-950);
   }
 }
+
+/*
+ * Marquee: slides a track of two identical copies of some content left by one copy's width,
+ * then repeats, so it loops seamlessly. Set --marquee-duration for the speed. Pair it with a
+ * pause control (WCAG 2.2.2) and motion-safe: so it holds still under reduced motion.
+ */
+@keyframes marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@utility marquee {
+  width: max-content;
+  /* Longhands, so a pause (animation-play-state) isn't reset by the shorthand */
+  animation-name: marquee;
+  animation-duration: var(--marquee-duration, 20s);
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
