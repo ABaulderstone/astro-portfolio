@@ -5,6 +5,9 @@
  * Dark mode follows prefers-color-scheme unless <html data-theme="light|dark"> overrides it
  * (set by ThemeToggle).
  */
+/* Short viewports (under 896px tall): for tightening layouts so pages still fit one screen */
+@custom-variant short (@media (max-height: 56rem));
+
 @custom-variant dark {
   &:where([data-theme='dark'], [data-theme='dark'] *) {
     @slot;
@@ -92,6 +95,13 @@
   --color-ember-900: #511900;
   --color-ember-950: #320d00;
 
+  /* Body text that grows with the viewport: 18px at 1024px up to 26px at ~2560px. Use from lg
+     (lg:text-fluid); smaller screens keep the 16px default. */
+  --text-fluid: clamp(1.125rem, 0.79rem + 0.52vw, 1.625rem);
+
+  /* For very wide screens: steps Press Start 2P up to the next 8px size where columns allow */
+  --breakpoint-3xl: 120rem;
+
   /* Font files and fallbacks are loaded by Astro's Fonts API (astro.config.mjs, <Font> in Base) */
   --font-sans: var(--font-roboto);
   --font-heading: var(--font-press-start);
@@ -112,9 +122,12 @@
     --nav-toggle-size: 3.5rem;
     --frame-inset-bottom: calc(var(--nav-toggle-size) + 2 * var(--frame-inset));
     --frame-color: var(--color-nebula-600);
+    /* Patterns read fainter on paper than on black, so light mode gets a little more ink */
+    --pattern-boost: 1.25;
 
     @variant dark {
       --frame-color: var(--color-phosphor-400);
+      --pattern-boost: 1;
     }
 
     @variant md {
@@ -161,7 +174,8 @@
     display: flex;
     flex-direction: column;
     margin: var(--frame-inset) var(--frame-inset) var(--frame-inset-bottom);
-    min-height: calc(100dvh - var(--frame-inset) - var(--frame-inset-bottom));
+    /* Exactly one screen: Frame's content wrapper scrolls if a page ever outgrows it */
+    height: calc(100dvh - var(--frame-inset) - var(--frame-inset-bottom));
     padding: calc(var(--frame-width) + 1.25rem);
 
     @variant md {
@@ -190,6 +204,7 @@
   .panels {
     display: grid;
     flex: 1;
+    min-height: 0;
     gap: var(--frame-width);
   }
 
@@ -290,4 +305,71 @@
   from {
     transform: scaleY(0);
   }
+}
+
+/*
+ * Background patterns: faint tints of the frame colour (so they follow the theme) for any
+ * section, e.g. a .panels child. pattern-on-hover hides one until the section is hovered or
+ * holds keyboard focus, then fades it in. Tune with --pattern-strength (how much frame colour
+ * the ink has; keep it low so text contrast holds) and --pattern-color. They're backgrounds,
+ * not pseudo-elements, so they don't clash with edge-b / edge-l.
+ */
+@property --pattern-alpha {
+  syntax: '<percentage>';
+  inherits: false;
+  initial-value: 0%;
+}
+
+@utility pattern-base {
+  --pattern-alpha: calc(var(--pattern-strength, 14%) * var(--pattern-boost, 1));
+  --pattern-ink: color-mix(in oklab, var(--pattern-color, var(--frame-color)) var(--pattern-alpha), transparent);
+  transition: --pattern-alpha 300ms ease-out;
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+}
+
+@utility pattern-on-hover {
+  &:not(:hover, :focus-within) {
+    --pattern-alpha: 0%;
+  }
+}
+
+@utility pattern-dots {
+  @apply pattern-base;
+  background-image: radial-gradient(circle, var(--pattern-ink) 1.5px, transparent 2px);
+  background-size: 12px 12px;
+}
+
+@utility pattern-grid {
+  @apply pattern-base;
+  background-image:
+    linear-gradient(var(--pattern-ink) 1px, transparent 1px),
+    linear-gradient(90deg, var(--pattern-ink) 1px, transparent 1px);
+  background-size: 16px 16px;
+}
+
+@utility pattern-hatch {
+  @apply pattern-base;
+  background-image: repeating-linear-gradient(45deg, var(--pattern-ink) 0 1px, transparent 1px 8px);
+}
+
+@utility pattern-crosshatch {
+  @apply pattern-base;
+  background-image:
+    repeating-linear-gradient(45deg, var(--pattern-ink) 0 1px, transparent 1px 8px),
+    repeating-linear-gradient(-45deg, var(--pattern-ink) 0 1px, transparent 1px 8px);
+}
+
+@utility pattern-stripes {
+  @apply pattern-base;
+  background-image: repeating-linear-gradient(-45deg, var(--pattern-ink) 0 4px, transparent 4px 16px);
+}
+
+/* 4px squares, like an 8-bit dither */
+@utility pattern-checker {
+  @apply pattern-base;
+  background-image: conic-gradient(var(--pattern-ink) 25%, transparent 0 50%, var(--pattern-ink) 0 75%, transparent 0);
+  background-size: 8px 8px;
 }
