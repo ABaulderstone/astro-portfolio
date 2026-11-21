@@ -408,3 +408,23 @@
   );
   background-size: 8px 8px;
 }
+
+/*
+ * Scroll shadows for a scrolling region: a faint frame-colour tint along whichever edge has
+ * more content past it, so it reads as scrollable where scrollbars are hidden (iOS Safari).
+ * Pure CSS: page-coloured covers attached to the content (local) hide the tints (scroll) when
+ * that end is reached. It paints the background, so don't combine it with a pattern-*.
+ */
+@utility scroll-shadow {
+  --scroll-shadow-bg: var(--color-paper-100);
+  --scroll-shadow-ink: color-mix(in oklab, var(--frame-color) 40%, transparent);
+  background:
+    linear-gradient(var(--scroll-shadow-bg) 30%, transparent) top / 100% 2.5rem no-repeat local,
+    linear-gradient(transparent, var(--scroll-shadow-bg) 70%) bottom / 100% 2.5rem no-repeat local,
+    linear-gradient(var(--scroll-shadow-ink), transparent) top / 100% 1rem no-repeat scroll,
+    linear-gradient(transparent, var(--scroll-shadow-ink)) bottom / 100% 1rem no-repeat scroll;
+
+  @variant dark {
+    --scroll-shadow-bg: var(--color-void-950);
+  }
+}
