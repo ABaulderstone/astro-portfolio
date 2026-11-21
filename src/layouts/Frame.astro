@@ -1,12 +1,10 @@
 ---
 // src/layouts/Frame.astro
-import Base from './Base.astro';
+import Base, { type Props as BaseProps } from './Base.astro';
 import SiteNav from '../components/SiteNav.astro';
 import ThemeToggle from '../components/ThemeToggle.astro';
 
-interface Props {
-  title: string;
-  description: string;
+interface Props extends BaseProps {
   /** Fill the frame edge to edge so a page can divide it with `.panels` (see global.css) */
   panels?: boolean;
 }
@@ -14,6 +12,7 @@ interface Props {
 const { panels = false, ...props } = Astro.props;
 ---
 <Base {...props}>
+  <slot name="head" slot="head" />
   <SiteNav slot="header" />
   <div class:list={['frame', { 'frame-panels': panels }]}>
     <div class="frame-border" aria-hidden="true"></div>

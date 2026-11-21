@@ -18,8 +18,13 @@ for (const path of pages) {
     for (const size of sizes) {
       await page.setViewportSize(size);
       await page.goto(path);
-      const overflow = await page.evaluate(() => document.documentElement.scrollHeight - window.innerHeight);
-      expect(overflow, `${size.width}x${size.height}`).toBeLessThanOrEqual(0);
+      // Neither way: a wide element (like a code block) mustn't push the page sideways either
+      const overflow = await page.evaluate(() => ({
+        down: document.documentElement.scrollHeight - window.innerHeight,
+        across: document.documentElement.scrollWidth - window.innerWidth,
+      }));
+      expect(overflow.down, `${size.width}x${size.height} vertically`).toBeLessThanOrEqual(0);
+      expect(overflow.across, `${size.width}x${size.height} horizontally`).toBeLessThanOrEqual(0);
     }
   });
 }
