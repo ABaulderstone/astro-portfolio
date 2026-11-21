@@ -1,0 +1,47 @@
+---
+import Frame from '../../layouts/Frame.astro';
+import { getProjects } from '../../lib/projects';
+
+const projects = await getProjects();
+---
+<Frame title="Projects | Alex Baulderstone" description="Projects by Alex Baulderstone: web applications, internal tools and integrations built with Java, Spring Boot, React and TypeScript." panels>
+	<!-- A title bar, then the projects (scrolling inside their panel): one column on phones, a
+	     grid of cards from md -->
+	<div class="panels grid-rows-[auto_1fr]">
+		<div class="edge-b p-5 md:p-8 short:md:py-4">
+			<h1 class="text-center text-2xl leading-normal md:text-[2rem]">Projects</h1>
+		</div>
+
+		<div class="min-h-0 [--edge-delay:150ms]">
+			<div role="region" aria-label="Projects" tabindex="0" class="scroll-shadow h-full overflow-y-auto focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-ember-500">
+				<!-- Each title link stretches over its whole card, so anywhere on it opens the project -->
+				<ul class="grid gap-5 p-5 md:grid-cols-2 md:gap-6 md:p-8 xl:grid-cols-3 3xl:grid-cols-4 short:md:py-6">
+					{projects.map((project) => (
+						<li class="pattern-dots pattern-on-hover relative border-2 border-(--frame-color)">
+							<article class="flex h-full flex-col p-5 md:p-6">
+								<p class="text-sm lg:text-base">
+									<time datetime={project.data.date.toISOString()}>{project.data.date.getUTCFullYear()}</time>
+								</p>
+								<h2 class="mt-2 text-base leading-normal 3xl:text-2xl">
+									<a
+										href={`/projects/${project.id}/`}
+										class="after:absolute after:inset-0 hover:text-ember-600 focus-visible:outline-none focus-visible:after:outline-2 focus-visible:after:-outline-offset-4 focus-visible:after:outline-ember-500 dark:hover:text-ember-400"
+									>
+										{project.data.title}
+									</a>
+								</h2>
+								<p class="mt-3 lg:text-fluid">{project.data.description}</p>
+								<!-- Pushed to the bottom, so the stacks line up along a row of cards -->
+								<ul class="mt-auto flex flex-wrap gap-2 pt-4" aria-label="Stack">
+									{project.data.stack.map((tech) => (
+										<li class="border-2 border-(--frame-color) px-2 py-0.5 text-sm lg:text-base">{tech}</li>
+									))}
+								</ul>
+							</article>
+						</li>
+					))}
+				</ul>
+			</div>
+		</div>
+	</div>
+</Frame>
