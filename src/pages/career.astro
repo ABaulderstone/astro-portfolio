@@ -2,14 +2,25 @@
 import { getCollection } from 'astro:content';
 import ChevronLeftIcon from '../components/icons/ChevronLeftIcon.astro';
 import ChevronRightIcon from '../components/icons/ChevronRightIcon.astro';
+import PauseIcon from '../components/icons/PauseIcon.astro';
+import PlayIcon from '../components/icons/PlayIcon.astro';
 import StackIcon from '../components/icons/StackIcon.astro';
 import Frame from '../layouts/Frame.astro';
 
 // One job per company, spanning its roles (listed newest first). Newest job first; it's shown
 // when the URL has no hash.
 const jobs = (await getCollection('career'))
-	.map((job) => ({ ...job, start: job.data.roles.at(-1)!.start, end: job.data.roles[0].end }))
+	.map((job) => ({ ...job, start: job.data.roles.at(-1)!.start, end: job.data.roles[0].end, ...marquee(job.data.stack) }))
 	.sort((a, b) => b.start.getTime() - a.start.getTime());
+
+// On mobile a stack shows as one row of chips, scrolling as a marquee if it won't fit. CSS can't
+// tell when a row overflows, so estimate it here: about 7px a character at 14px, plus each chip's
+// padding, border and gap, against a phone's panel (about 300px). The duration keeps the speed
+// at about 40px a second whatever the length.
+function marquee(stack: string[]) {
+	const width = stack.reduce((total, tech) => total + tech.length * 7 + 28, 0);
+	return { scrolls: width > 300, duration: `${Math.round(width / 40)}s` };
+}
 
 const year = (date: Date) => date.getUTCFullYear();
 const years = ({ start, end }: { start: Date; end?: Date }) =>
@@ -24,11 +35,13 @@ const isoMonth = (date: Date) => date.toISOString().slice(0, 7);
 // slugs, so they're safe in selectors (just don't name a file after another id on the page,
 // like main.md). Shown elements use their --shown display, block by default.
 const showSelected = jobs
-	.map(({ id }, i) => {
+	.map(({ id, scrolls }, i) => {
 		const selected = [`.career:has(#${id}:target)`, ...(i === 0 ? ['.career:not(:has(article:target))'] : [])];
 		const within = (selector: string) => selected.map((s) => `${s} ${selector}`).join(', ');
 		return `${within(`[data-job="${id}"]`)} { display: var(--shown, block); }
-${within(`[data-node="${id}"]`)} { background: var(--frame-color); }`;
+${within(`[data-node="${id}"]`)} { background: var(--frame-color); }${
+			scrolls ? `\n${within('[data-marquee-pause]')} { display: flex; }` : ''
+		}`;
 	})
 	.join('\n');
 
@@ -130,18 +143,51 @@ const arrowClass =
 			</div>
 		</section>
 
-		<section class="pattern-dots pattern-on-hover p-5 md:col-start-1 md:row-start-3 md:p-8 short:md:p-5 lg:col-start-3 lg:row-start-2 lg:edge-l lg:[--edge-delay:550ms]">
-			<h2 class="flex items-center gap-2 text-base leading-normal 3xl:text-2xl">
-				<StackIcon class="size-6 shrink-0 text-nebula-600 3xl:size-8 dark:text-phosphor-400" />
-				Stack
-			</h2>
-			{jobs.map(({ id, data }) => (
-				<ul data-job={id} class="mt-4 hidden flex-wrap gap-2 [--shown:flex]" aria-label={`Stack at ${data.company}`}>
-					{data.stack.map((tech) => (
-						<li class="border-2 border-(--frame-color) px-2 py-0.5 text-sm lg:text-base 3xl:text-lg">{tech}</li>
-					))}
-				</ul>
-			))}
+		<!-- min-w-0 so a marquee track (wider than the screen) can't widen the grid -->
+		<section class="pattern-dots pattern-on-hover min-w-0 p-5 md:col-start-1 md:row-start-3 md:p-8 short:md:p-5 lg:col-start-3 lg:row-start-2 lg:edge-l lg:[--edge-delay:550ms]">
+			<div class="flex items-center justify-between gap-2">
+				<h2 class="flex items-center gap-2 text-base leading-normal 3xl:text-2xl">
+					<StackIcon class="size-6 shrink-0 text-nebula-600 3xl:size-8 dark:text-phosphor-400" />
+					Stack
+				</h2>
+				<!-- Pauses the marquee (WCAG 2.2.2). A checkbox, so it needs no JS. Shown on mobile, with
+				     motion allowed, when the selected job's stack scrolls. -->
+				<div class="-my-3 md:hidden motion-reduce:hidden">
+					<label data-marquee-pause class="relative hidden size-11 cursor-pointer items-center justify-center text-nebula-600 hover:text-ember-600 dark:text-phosphor-400 dark:hover:text-ember-400">
+						<input type="checkbox" id="pause-stack" class="peer sr-only" />
+						<span class="sr-only">Pause the stack scrolling</span>
+						<PauseIcon class="size-6 peer-checked:hidden" />
+						<PlayIcon class="hidden size-6 peer-checked:block" />
+						<span class="pointer-events-none absolute size-11 peer-focus-visible:outline-2 peer-focus-visible:outline-ember-500" aria-hidden="true"></span>
+					</label>
+				</div>
+			</div>
+			{jobs.map(({ id, data, scrolls, duration }) => {
+				const marquee = scrolls ? 'motion-safe:max-md:flex-nowrap motion-safe:max-md:pr-2' : '';
+				return (
+					<div data-job={id} class:list={['mt-4 hidden max-md:mt-3', scrolls && 'motion-safe:max-md:overflow-hidden motion-safe:max-md:mask-x-from-85%']}>
+						<!-- A long stack's track holds the list twice (the copy hidden from screen readers)
+						     so the marquee loops seamlessly; it pauses on hover or with the button -->
+						<div
+							class:list={[scrolls && 'motion-safe:max-md:marquee motion-safe:max-md:flex hover:[animation-play-state:paused] in-[.career:has(#pause-stack:checked)]:[animation-play-state:paused]']}
+							style={scrolls ? `--marquee-duration: ${duration}` : undefined}
+						>
+							<ul class:list={['flex flex-wrap gap-2', marquee]} aria-label={`Stack at ${data.company}`}>
+								{data.stack.map((tech) => (
+									<li class="border-2 border-(--frame-color) px-2 py-0.5 text-sm whitespace-nowrap lg:text-base 3xl:text-lg">{tech}</li>
+								))}
+							</ul>
+							{scrolls && (
+								<ul class="hidden gap-2 pr-2 motion-safe:max-md:flex" aria-hidden="true">
+									{data.stack.map((tech) => (
+										<li class="border-2 border-(--frame-color) px-2 py-0.5 text-sm whitespace-nowrap">{tech}</li>
+									))}
+								</ul>
+							)}
+						</div>
+					</div>
+				);
+			})}
 		</section>
 	</div>
 </Frame>

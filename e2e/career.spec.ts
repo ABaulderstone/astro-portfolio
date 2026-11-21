@@ -47,3 +47,40 @@ test('on mobile the arrows step to earlier and later jobs', async ({ page, isMob
   await page.getByRole('link', { name: /^Later:/ }).click();
   expect(await visibleJobs(page)).toEqual([newest]);
 });
+
+test.describe('mobile stack marquee', () => {
+  const track = (page: import('@playwright/test').Page) =>
+    page.evaluate(() => {
+      const el = [...document.querySelectorAll('[data-job]:not(article) > div')].find((e) => e.checkVisibility())!;
+      const style = getComputedStyle(el);
+      return { name: style.animationName, state: style.animationPlayState };
+    });
+
+  test('a long stack scrolls, and the button pauses it', async ({ page, isMobile }) => {
+    test.skip(!isMobile, 'the marquee is mobile only');
+    await page.goto('/career/');
+    expect(await track(page)).toEqual({ name: 'marquee', state: 'running' });
+    await page.getByLabel('Pause the stack scrolling').check({ force: true });
+    expect((await track(page)).state).toBe('paused');
+  });
+
+  test('a short stack stays still, with no pause button', async ({ page, isMobile }) => {
+    test.skip(!isMobile, 'the marquee is mobile only');
+    const ids = await page.goto('/career/').then(() =>
+      page.locator('nav[aria-label="Career timeline"] ol a').evaluateAll((links) => links.map((a) => a.getAttribute('href')!)),
+    );
+    await page.goto(`/career/${ids.at(-1)}`);
+    expect((await track(page)).name).toBe('none');
+    await expect(page.locator('[data-marquee-pause]')).toBeHidden();
+  });
+
+  test.describe('with reduced motion', () => {
+    test.use({ reducedMotion: 'reduce' });
+
+    test('the stack holds still and wraps', async ({ page }) => {
+      await page.goto('/career/');
+      expect((await track(page)).name).toBe('none');
+      await expect(page.locator('[data-marquee-pause]')).toBeHidden();
+    });
+  });
+});
