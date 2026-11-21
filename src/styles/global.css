@@ -13,7 +13,10 @@
     @slot;
   }
   @media (prefers-color-scheme: dark) {
-    &:where(:root:not([data-theme='light']), :root:not([data-theme='light']) *) {
+    &:where(
+      :root:not([data-theme='light']),
+      :root:not([data-theme='light']) *
+    ) {
       @slot;
     }
   }
@@ -125,7 +128,7 @@
     /* Patterns read fainter on paper than on black, so light mode gets a little more ink */
     --pattern-boost: 1.25;
     /* Starfield (src/components/Starfield.astro) is a little softer on paper than on black */
-    --starfield-strength: 0.85;
+    --starfield-strength: 0.9;
 
     @variant dark {
       --frame-color: var(--color-phosphor-400);
@@ -325,7 +328,11 @@
 
 @utility pattern-base {
   --pattern-alpha: calc(var(--pattern-strength, 14%) * var(--pattern-boost, 1));
-  --pattern-ink: color-mix(in oklab, var(--pattern-color, var(--frame-color)) var(--pattern-alpha), transparent);
+  --pattern-ink: color-mix(
+    in oklab,
+    var(--pattern-color, var(--frame-color)) var(--pattern-alpha),
+    transparent
+  );
   transition: --pattern-alpha 300ms ease-out;
 
   @media (prefers-reduced-motion: reduce) {
@@ -341,7 +348,11 @@
 
 @utility pattern-dots {
   @apply pattern-base;
-  background-image: radial-gradient(circle, var(--pattern-ink) 1.5px, transparent 2px);
+  background-image: radial-gradient(
+    circle,
+    var(--pattern-ink) 1.5px,
+    transparent 2px
+  );
   background-size: 12px 12px;
 }
 
@@ -355,24 +366,45 @@
 
 @utility pattern-hatch {
   @apply pattern-base;
-  background-image: repeating-linear-gradient(45deg, var(--pattern-ink) 0 1px, transparent 1px 8px);
+  background-image: repeating-linear-gradient(
+    45deg,
+    var(--pattern-ink) 0 1px,
+    transparent 1px 8px
+  );
 }
 
 @utility pattern-crosshatch {
   @apply pattern-base;
   background-image:
-    repeating-linear-gradient(45deg, var(--pattern-ink) 0 1px, transparent 1px 8px),
-    repeating-linear-gradient(-45deg, var(--pattern-ink) 0 1px, transparent 1px 8px);
+    repeating-linear-gradient(
+      45deg,
+      var(--pattern-ink) 0 1px,
+      transparent 1px 8px
+    ),
+    repeating-linear-gradient(
+      -45deg,
+      var(--pattern-ink) 0 1px,
+      transparent 1px 8px
+    );
 }
 
 @utility pattern-stripes {
   @apply pattern-base;
-  background-image: repeating-linear-gradient(-45deg, var(--pattern-ink) 0 4px, transparent 4px 16px);
+  background-image: repeating-linear-gradient(
+    -45deg,
+    var(--pattern-ink) 0 4px,
+    transparent 4px 16px
+  );
 }
 
 /* 4px squares, like an 8-bit dither */
 @utility pattern-checker {
   @apply pattern-base;
-  background-image: conic-gradient(var(--pattern-ink) 25%, transparent 0 50%, var(--pattern-ink) 0 75%, transparent 0);
+  background-image: conic-gradient(
+    var(--pattern-ink) 25%,
+    transparent 0 50%,
+    var(--pattern-ink) 0 75%,
+    transparent 0
+  );
   background-size: 8px 8px;
 }
