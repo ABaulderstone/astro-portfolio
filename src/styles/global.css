@@ -92,6 +92,13 @@
   --color-ember-900: #511900;
   --color-ember-950: #320d00;
 
+  /* Body text that grows with the viewport: 18px at 1024px up to 26px at ~2560px. Use from lg
+     (lg:text-fluid); smaller screens keep the 16px default. */
+  --text-fluid: clamp(1.125rem, 0.79rem + 0.52vw, 1.625rem);
+
+  /* For very wide screens: steps Press Start 2P up to the next 8px size where columns allow */
+  --breakpoint-3xl: 120rem;
+
   /* Font files and fallbacks are loaded by Astro's Fonts API (astro.config.mjs, <Font> in Base) */
   --font-sans: var(--font-roboto);
   --font-heading: var(--font-press-start);
