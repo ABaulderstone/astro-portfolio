@@ -298,3 +298,70 @@
     transform: scaleY(0);
   }
 }
+
+/*
+ * Background patterns: faint tints of the frame colour (so they follow the theme) for any
+ * section, e.g. a .panels child. pattern-on-hover hides one until the section is hovered or
+ * holds keyboard focus, then fades it in. Tune with --pattern-strength (how much frame colour
+ * the ink has; keep it low so text contrast holds) and --pattern-color. They're backgrounds,
+ * not pseudo-elements, so they don't clash with edge-b / edge-l.
+ */
+@property --pattern-alpha {
+  syntax: '<percentage>';
+  inherits: false;
+  initial-value: 0%;
+}
+
+@utility pattern-base {
+  --pattern-alpha: var(--pattern-strength, 14%);
+  --pattern-ink: color-mix(in oklab, var(--pattern-color, var(--frame-color)) var(--pattern-alpha), transparent);
+  transition: --pattern-alpha 300ms ease-out;
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+}
+
+@utility pattern-on-hover {
+  &:not(:hover, :focus-within) {
+    --pattern-alpha: 0%;
+  }
+}
+
+@utility pattern-dots {
+  @apply pattern-base;
+  background-image: radial-gradient(circle, var(--pattern-ink) 1.5px, transparent 2px);
+  background-size: 12px 12px;
+}
+
+@utility pattern-grid {
+  @apply pattern-base;
+  background-image:
+    linear-gradient(var(--pattern-ink) 1px, transparent 1px),
+    linear-gradient(90deg, var(--pattern-ink) 1px, transparent 1px);
+  background-size: 16px 16px;
+}
+
+@utility pattern-hatch {
+  @apply pattern-base;
+  background-image: repeating-linear-gradient(45deg, var(--pattern-ink) 0 1px, transparent 1px 8px);
+}
+
+@utility pattern-crosshatch {
+  @apply pattern-base;
+  background-image:
+    repeating-linear-gradient(45deg, var(--pattern-ink) 0 1px, transparent 1px 8px),
+    repeating-linear-gradient(-45deg, var(--pattern-ink) 0 1px, transparent 1px 8px);
+}
+
+@utility pattern-stripes {
+  @apply pattern-base;
+  background-image: repeating-linear-gradient(-45deg, var(--pattern-ink) 0 4px, transparent 4px 16px);
+}
+
+/* 4px squares, like an 8-bit dither */
+@utility pattern-checker {
+  @apply pattern-base;
+  background-image: conic-gradient(var(--pattern-ink) 25%, transparent 0 50%, var(--pattern-ink) 0 75%, transparent 0);
+  background-size: 8px 8px;
+}

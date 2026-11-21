@@ -36,3 +36,20 @@ test.describe('with reduced motion', () => {
     for (const name of animations) expect(name).toBe('none');
   });
 });
+
+test.describe('hover patterns', () => {
+  // Reduced motion skips the fade, so the value can be read straight after hovering
+  test.use({ reducedMotion: 'reduce' });
+
+  const patternAlpha = (el: import('@playwright/test').Locator) =>
+    el.evaluate((node) => getComputedStyle(node).getPropertyValue('--pattern-alpha').trim());
+
+  test('a pattern stays hidden until its section is hovered', async ({ page, isMobile }) => {
+    test.skip(isMobile, 'touch screens have no hover');
+    await page.goto('/about/');
+    const panel = page.locator('.pattern-on-hover').first();
+    expect(await patternAlpha(panel)).toBe('0%');
+    await panel.hover();
+    expect(await patternAlpha(panel)).toBe('14%');
+  });
+});
