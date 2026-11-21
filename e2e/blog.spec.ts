@@ -58,8 +58,11 @@ test('the blog list pages only when there are more posts than fit on one', async
     await expect(pager).toHaveCount(0);
     expect((await request.get('/blog/2/')).status()).toBe(404);
   } else {
-    await expect(pager).toContainText(`Page 1 of ${Math.ceil(posts.length / POSTS_PER_PAGE)}`);
+    const lastPage = Math.ceil(posts.length / POSTS_PER_PAGE);
+    await expect(pager.locator('[aria-current="page"]:visible')).toHaveAccessibleName('Page 1');
+    await expect(pager.getByRole('link', { name: `Page ${lastPage}` })).toBeVisible();
     await pager.getByRole('link', { name: 'Older posts' }).click();
     await expect(page).toHaveURL(/\/blog\/2\/$/);
+    await expect(pager.locator('[aria-current="page"]:visible')).toHaveAccessibleName('Page 2');
   }
 });

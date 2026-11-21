@@ -6,6 +6,7 @@ import RssIcon from '../../components/icons/RssIcon.astro';
 import Frame from '../../layouts/Frame.astro';
 import { formatDate, getPosts, readingTime, type Post } from '../../lib/blog';
 import { POSTS_PER_PAGE } from '../../lib/blog-config';
+import { pageItems, pageUrl } from '../../lib/pagination';
 
 // The list, newest first, a page at a time: /blog/, then /blog/2/, /blog/3/ and so on
 export const getStaticPaths = (async ({ paginate }) => paginate(await getPosts(), { pageSize: POSTS_PER_PAGE })) satisfies GetStaticPaths;
@@ -17,6 +18,13 @@ interface Props {
 const { page } = Astro.props;
 const paged = page.lastPage > 1;
 const description = 'Writing by Alex Baulderstone on full-stack development, Java, React and TypeScript, and helping junior developers grow.';
+
+// Numbered links: two pages either side of this one on md+, just this one on phones (with the
+// first and last pages either way), so they fit between the arrows
+const pageLists = [
+	{ items: pageItems(page.currentPage, page.lastPage, 0), class: 'md:hidden' },
+	{ items: pageItems(page.currentPage, page.lastPage, 2), class: 'max-md:hidden' },
+];
 
 const arrowClass =
 	'flex min-w-11 items-center justify-center gap-2 p-2 hover:text-ember-600 focus-visible:outline-2 focus-visible:outline-ember-500 dark:text-phosphor-400 dark:hover:text-ember-400';
@@ -86,7 +94,26 @@ const arrowClass =
 						<span class="max-md:sr-only">Older posts</span>
 					</a>
 				) : <span class="min-w-11" />}
-				<p>Page {page.currentPage} of {page.lastPage}</p>
+				{pageLists.map((list) => (
+					<ol class:list={['flex items-center gap-1', list.class]}>
+						{list.items.map((item) =>
+							item === 'gap' ? (
+								<li aria-hidden="true" class="w-6 text-center">…</li>
+							) : (
+								<li>
+									<a
+										href={pageUrl(item)}
+										aria-label={`Page ${item}`}
+										aria-current={item === page.currentPage ? 'page' : undefined}
+										class="flex size-10 items-center justify-center font-heading text-base hover:text-ember-600 focus-visible:outline-2 focus-visible:outline-ember-500 aria-[current=page]:border-2 aria-[current=page]:border-(--frame-color) dark:text-phosphor-300 dark:hover:text-ember-400"
+									>
+										{item}
+									</a>
+								</li>
+							),
+						)}
+					</ol>
+				))}
 				{page.url.prev ? (
 					<a href={page.url.prev} rel="prev" class={arrowClass}>
 						<span class="max-md:sr-only">Newer posts</span>

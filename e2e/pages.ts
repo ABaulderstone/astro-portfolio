@@ -1,5 +1,6 @@
 import { readdirSync, readFileSync } from 'node:fs';
 import { POSTS_PER_PAGE } from '../src/lib/blog-config';
+import { pageUrl } from '../src/lib/pagination';
 
 // Every route in src/pages (index.astro -> /, about.astro -> /about/), so new pages get checked
 // without editing the tests. Dynamic routes are skipped; blog posts and the blog list's pages
@@ -22,9 +23,7 @@ export const posts = readdirSync('src/content/blog')
   .sort((a, b) => b.date.getTime() - a.date.getTime())
   .map(({ path }) => path);
 
-const listPages = Array.from({ length: Math.max(1, Math.ceil(posts.length / POSTS_PER_PAGE)) }, (_, i) =>
-  i === 0 ? '/blog/' : `/blog/${i + 1}/`,
-);
+const listPages = Array.from({ length: Math.max(1, Math.ceil(posts.length / POSTS_PER_PAGE)) }, (_, i) => pageUrl(i + 1));
 
 /** Every page, for the cheap layout checks: a post's content (a wide table, say) can break the layout */
 export const pages = [...new Set([...staticPages, ...listPages, ...posts])];
