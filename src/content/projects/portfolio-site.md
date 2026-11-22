@@ -14,7 +14,7 @@ stack:
     Claude Code,
   ]
 repo: https://github.com/ABaulderstone/astro-portfolio
-url: https://alexbaulderstone.com
+url: https://www.alexbaulderstone.com/
 ---
 
 ## Why build it
