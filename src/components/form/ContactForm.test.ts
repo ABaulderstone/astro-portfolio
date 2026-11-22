@@ -38,6 +38,8 @@ describe('ContactForm', () => {
     expect(html).toMatch(/<input [^>]*name="name"[^>]*required/);
     expect(html).toMatch(/<input [^>]*name="email" type="email"[^>]*required/);
     expect(html).toMatch(/<textarea [^>]*name="message"[^>]*required/);
+    expect(html).toMatch(/<input [^>]*name="mobile" type="tel"/);
+    expect(html).not.toMatch(/<input [^>]*name="mobile"[^>]*required/);
     expect(html).toContain('type="submit"');
   });
 

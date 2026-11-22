@@ -10,7 +10,7 @@ type Props = Omit<HTMLAttributes<'input'> & HTMLAttributes<'textarea'>, 'type' |
 	label: string;
 	/** Shown below the field while it's invalid */
 	error: string;
-	type?: 'text' | 'email' | 'textarea';
+	type?: 'text' | 'email' | 'tel' | 'textarea';
 	/** Extra classes for the input or textarea (a height, say) */
 	fieldClass?: string;
 };
