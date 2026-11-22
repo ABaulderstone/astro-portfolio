@@ -1,6 +1,22 @@
 ---
 company: _nology
-stack: [Java, Spring Boot, React, TypeScript, Scala, Play, NestJS, AWS, Docker, Playwright, C#/.NET]
+stack:
+  [
+    Java,
+    Spring Boot,
+    React,
+    TypeScript,
+    Scala,
+    Play,
+    Node.js,
+    Express,
+    NestJS,
+    AWS,
+    Docker,
+    Playwright,
+    Selenium,
+    C#/.NET,
+  ]
 roles:
   - title: Principal Coach
     start: 2024-12-01

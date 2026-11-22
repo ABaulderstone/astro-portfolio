@@ -1,6 +1,6 @@
 ---
 company: Faethm AI
-stack: [React, Redux, Redux-Observable]
+stack: [React, Redux, Redux-Observable, AWS Lambda, Api Gateway, Node.js]
 roles:
   - title: Full Stack Developer (contract)
     start: 2019-08-01

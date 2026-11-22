@@ -1,6 +1,18 @@
 ---
 company: Coder Academy
-stack: [Ruby, Ruby on Rails, Python, JavaScript, React, Heroku, CI/CD]
+stack: [
+    Ruby,
+    Ruby on Rails,
+    Python,
+    JavaScript,
+    Node.js,
+    Express,
+    MongoDb,
+    React,
+    Heroku,
+    Docker
+    CI/CD,
+  ]
 roles:
   - title: Course Coordinator
     start: 2021-04-01
