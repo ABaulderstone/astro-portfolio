@@ -1,7 +1,7 @@
 ---
-title: Learning to loosen the reigns - my experience with Claude Code
+title: Learning to loosen the reins - my experience with Claude Code
 description: A post on my first experience with Claude Code and how I wrestled with the discomfort of letting go of control in my coding
-pubDate: 2026-11-11
+pubDate: 2026-11-22
 tags: [Claude Code, Agentic AI, Development, Astro]
 ---
 
