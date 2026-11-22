@@ -28,7 +28,7 @@ I actually found the dynamic type system somewhat stressful - after working with
 
 ## What it does
 
-Admins create consultants, each with a profile and a history of contracts. They set up clients and jobs, and assign consultants to jobs. Consultants log in to see their assigned work and edit their own details. An admin dashboard charts profit, revenue share, utilisation and the flow of jobs.
+Admins create consultants, each with a profile and a history of contracts. They set up clients and jobs, and assign consultants to jobs. Consultants log in to see their assigned work and edit their own details. An admin dashboard charts profit, revenue share, utilization and the flow of jobs.
 
 ## The backend
 
@@ -49,7 +49,7 @@ User
   .where.not(id: conflicting_user_ids)
 ```
 
-Utilisation is worked out the same way: assigned working days as a share of available working days, over a consultant's whole history or any period.
+Utilization is worked out the same way: assigned working days as a share of available working days, over a consultant's whole history or any period.
 
 ## The frontend
 
