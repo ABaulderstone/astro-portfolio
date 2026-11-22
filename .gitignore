@@ -27,3 +27,6 @@ pnpm-debug.log*
 test-results/
 playwright-report/
 blob-report/
+
+# contact form submissions captured in dev (functions/contact/)
+.dev-data/

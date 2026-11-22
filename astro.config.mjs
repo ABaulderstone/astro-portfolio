@@ -1,5 +1,5 @@
 // @ts-check
-import { defineConfig, fontProviders } from 'astro/config';
+import { defineConfig, envField, fontProviders } from 'astro/config';
 
 import tailwindcss from '@tailwindcss/vite';
 
@@ -7,13 +7,22 @@ import sitemap from '@astrojs/sitemap';
 
 import { satteri } from '@astrojs/markdown-satteri';
 import { taskListLabels } from './src/lib/task-list-labels';
+import { contactDevServer } from './functions/contact/integration';
 
 export default defineConfig({
   site: 'https://alexbaulderstone.com',
   trailingSlash: 'always',
   vite: { plugins: [tailwindcss()] },
-  // The contact form's thank-you page isn't worth a search result
-  integrations: [sitemap({ filter: (page) => !page.endsWith('/contact/thanks/') })],
+  // The contact form's thank-you and error pages aren't worth a search result
+  integrations: [sitemap({ filter: (page) => !/\/contact\/(thanks|error)\/$/.test(page) }), contactDevServer()],
+  // Where the contact form posts. Required, so a build with nowhere to send messages fails rather
+  // than thanking people for messages that went nowhere. .env.development points it at the dev
+  // endpoint (functions/contact/); production sets the real one.
+  env: {
+    schema: {
+      PUBLIC_CONTACT_ENDPOINT: envField.string({ context: 'client', access: 'public', url: true }),
+    },
+  },
   // Code blocks carry both themes; global.css switches to the dark one with the site's theme.
   // github-dark-default rather than github-dark, whose comments miss 4.5:1 contrast
   markdown: {
