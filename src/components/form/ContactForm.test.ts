@@ -43,6 +43,18 @@ describe('ContactForm', () => {
     expect(html).toContain('type="submit"');
   });
 
+  it('posts to the contact endpoint, with the rules from src/lib/enquiry.ts', async () => {
+    const html = await container.renderToString(ContactForm);
+    expect(html).toMatch(/<form action="http:\/\/localhost:8787\/contact\/" method="post"/);
+    expect(html).toMatch(/<textarea [^>]*minlength="10" maxlength="5000"/);
+    expect(html).toMatch(/<input [^>]*name="mobile"[^>]*pattern="\\\+\?\[0-9 /);
+  });
+
+  it('has a honeypot that people, screen readers and the keyboard all skip', async () => {
+    const html = await container.renderToString(ContactForm);
+    expect(html).toMatch(/<div class="sr-only" aria-hidden="true">\s*<label>[^<]*<input type="text" name="website" tabindex="-1" autocomplete="off"/);
+  });
+
   it('shows a form error below the fields', async () => {
     const html = await container.renderToString(ContactForm, { props: { error: 'Something went wrong' } });
     expect(html).toMatch(/<p role="alert"[^>]*>Something went wrong<\/p>/);

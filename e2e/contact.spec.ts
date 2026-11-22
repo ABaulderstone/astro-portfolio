@@ -1,7 +1,10 @@
 import { expect, test } from '@playwright/test';
+import { contactEndpoint } from '../playwright.config';
 import { socials } from '../src/lib/socials';
 
-test('the browser blocks an empty or invalid contact form, and the error shows after leaving a field', async ({ page }) => {
+test('the browser blocks an invalid contact form, then a valid one is stored and thanked', async ({ page, request }, testInfo) => {
+  // Unique per run, as the desktop and mobile runs post to the same endpoint
+  const message = `Hello from the ${testInfo.project.name} test, ${Date.now()}.`;
   await page.goto('/contact/');
   const form = page.getByRole('form', { name: 'Contact' });
   const email = form.getByLabel('Email');
@@ -19,7 +22,7 @@ test('the browser blocks an empty or invalid contact form, and the error shows a
 
   await form.getByLabel('Name').fill('Ada');
   await email.fill('ada@example.com');
-  await form.getByLabel('Message').fill('Hello, this is a message.');
+  await form.getByLabel('Message').fill(message);
   expect(await form.evaluate((el: HTMLFormElement) => el.checkValidity())).toBe(true);
 
   // The mobile number is optional, but checked when given
@@ -35,15 +38,32 @@ test('the browser blocks an empty or invalid contact form, and the error shows a
   await form.getByRole('button', { name: 'Send' }).click();
   await expect(page).toHaveURL(/\/contact\/thanks\//);
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Thank you');
+  const enquiries = await (await request.get(contactEndpoint)).json();
+  expect(enquiries).toContainEqual(expect.objectContaining({ name: 'Ada', email: 'ada@example.com', mobile: '+61 (0)400 000-000', message }));
+
   await page.getByRole('link', { name: 'Back to home' }).click();
   await expect(page).toHaveURL(/\/$/);
 });
 
-test('the thank-you page is kept out of search results', async ({ page, request }) => {
-  await page.goto('/contact/thanks/');
-  await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', 'noindex');
-  expect(await (await request.get('/sitemap-0.xml')).text()).not.toContain('/contact/thanks/');
+test('the endpoint sends a form that fails its checks to the error page, which links back', async ({ page, request }) => {
+  // Straight to the endpoint, as the browser wouldn't send it
+  const response = await request.post(contactEndpoint, { form: { name: 'Ada', email: 'not-an-email', message: 'Hi' }, maxRedirects: 0 });
+  expect(response.status()).toBe(303);
+  expect(response.headers().location).toBe('http://localhost:4322/contact/error/');
+
+  await page.goto('/contact/error/');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Message not sent');
+  await page.getByRole('link', { name: 'Back to the form' }).click();
+  await expect(page).toHaveURL(/\/contact\/$/);
 });
+
+for (const path of ['/contact/thanks/', '/contact/error/']) {
+  test(`${path} is kept out of search results`, async ({ page, request }) => {
+    await page.goto(path);
+    await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', 'noindex');
+    expect(await (await request.get('/sitemap-0.xml')).text()).not.toContain(path);
+  });
+}
 
 test('on desktop the social links sit beside the form, with labels', async ({ page, isMobile }) => {
   test.skip(isMobile, 'the side panel is desktop only');

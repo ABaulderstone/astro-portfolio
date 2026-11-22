@@ -1,7 +1,12 @@
 ---
 // The contact form: name, email, an optional mobile number and message, one field per line,
-// checked by the browser (no client JS). `error` is a message about the whole form (a failed
-// send, say), shown below the fields beside the button; its room is reserved either way. `action` and `method` say where it submits.
+// checked by the browser (no client JS). It's a plain POST to PUBLIC_CONTACT_ENDPOINT (the dev
+// endpoint in functions/contact/, or the real one), which redirects to /contact/thanks/ or
+// /contact/error/. The rules come from src/lib/enquiry.ts, which the endpoint checks too.
+// `error` is a message about the whole form, shown below the fields beside the button; its room
+// is reserved either way. `action` and `method` override where it submits.
+import { PUBLIC_CONTACT_ENDPOINT } from 'astro:env/client';
+import { HONEYPOT_FIELD, MAX_LENGTHS, MESSAGE_MIN_LENGTH, MOBILE_PATTERN } from '../../lib/enquiry';
 import FormField from './FormField.astro';
 import SubmitButton from './SubmitButton.astro';
 
@@ -11,15 +16,19 @@ interface Props {
 	error?: string;
 }
 
-const { action, method = 'post', error } = Astro.props;
+const { action = PUBLIC_CONTACT_ENDPOINT, method = 'post', error } = Astro.props;
 ---
 <!-- No gap between fields: each one's reserved error line spaces it from the next -->
 <form {action} {method} aria-label="Contact" class="flex flex-col">
-	<FormField name="name" label="Name" autocomplete="name" placeholder="Your name" required error="Please enter your name." />
-	<FormField name="email" label="Email" type="email" autocomplete="email" placeholder="you@example.com" required error="Please enter a valid email address." />
-	<!-- Lenient: digits with spaces, brackets, dashes and an optional leading + -->
-	<FormField name="mobile" label="Mobile (optional)" type="tel" autocomplete="tel" placeholder="0400 000 000" pattern="\+?[0-9 \(\)\-]{8,20}" error="Please enter a valid phone number." />
-	<FormField name="message" label="Message" type="textarea" rows={3} fieldClass="short:md:h-24" placeholder="What would you like to talk about?" required minlength={10} error="Please enter a message of at least 10 characters." />
+	<FormField name="name" label="Name" autocomplete="name" placeholder="Your name" required maxlength={MAX_LENGTHS.name} error="Please enter your name." />
+	<FormField name="email" label="Email" type="email" autocomplete="email" placeholder="you@example.com" required maxlength={MAX_LENGTHS.email} error="Please enter a valid email address." />
+	<FormField name="mobile" label="Mobile (optional)" type="tel" autocomplete="tel" placeholder="0400 000 000" pattern={MOBILE_PATTERN} maxlength={MAX_LENGTHS.mobile} error="Please enter a valid phone number." />
+	<FormField name="message" label="Message" type="textarea" rows={3} fieldClass="short:md:h-24" placeholder="What would you like to talk about?" required minlength={MESSAGE_MIN_LENGTH} maxlength={MAX_LENGTHS.message} error={`Please enter a message of at least ${MESSAGE_MIN_LENGTH} characters.`} />
+	<!-- A honeypot for bots: hidden from sight, screen readers and the keyboard, so only a bot
+	     fills it in, and the endpoint drops anything that has it -->
+	<div class="sr-only" aria-hidden="true">
+		<label>Leave this empty <input type="text" name={HONEYPOT_FIELD} tabindex="-1" autocomplete="off" /></label>
+	</div>
 	<!-- The form's error sits beside the button, wrapping below it on a narrow screen -->
 	<div class="mt-2 flex flex-wrap items-center gap-x-6 gap-y-2">
 		<SubmitButton>Send</SubmitButton>

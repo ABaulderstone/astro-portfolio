@@ -22,7 +22,10 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm test
+      # The build fails without a contact endpoint (astro.config.mjs); any URL does for a check
       - run: npm run build
+        env:
+          PUBLIC_CONTACT_ENDPOINT: https://example.com/contact/
 
   e2e:
     name: Browser and accessibility tests

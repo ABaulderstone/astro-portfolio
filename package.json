@@ -7,6 +7,7 @@
   },
   "scripts": {
     "dev": "astro dev",
+    "dev:contact": "node --watch functions/contact/dev-server.ts",
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",

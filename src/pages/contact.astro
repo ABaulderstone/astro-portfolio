@@ -29,10 +29,7 @@ import Frame from '../layouts/Frame.astro';
 				<!-- my-auto centres it from lg, and it still scrolls from the top when it overflows -->
 				<div class="mx-auto w-full max-w-2xl lg:my-auto lg:text-fluid">
 					<p class="mb-6 short:md:mb-4">Need something built? Want to work with me? Just keen for a chat? Shoot me a message and I'll get back to you</p>
-					<!-- No form backend yet, so it just goes to the thank-you page. GET because a static
-					     host won't accept a POST to a page; switch to POST with a real backend, as GET
-					     puts the message in the URL. -->
-					<ContactForm action="/contact/thanks/" method="get" />
+					<ContactForm />
 				</div>
 			</div>
 		</div>
