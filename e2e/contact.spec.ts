@@ -81,6 +81,8 @@ for (const size of [
     test.skip(isMobile, 'desktop sizes');
     await page.setViewportSize(size);
     await page.goto('/contact/');
+    // Measure with the web fonts in, as the fallback font is narrower and can hide an overflow
+    await page.evaluate(() => document.fonts.ready);
     const [scroll, client] = await page
       .getByRole('region', { name: 'Contact form' })
       .evaluate((el) => [el.scrollHeight, el.clientHeight]);
