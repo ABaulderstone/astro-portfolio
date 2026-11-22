@@ -10,7 +10,7 @@ stack: [
     MongoDb,
     React,
     Heroku,
-    Docker
+    Docker,
     CI/CD,
   ]
 roles:

@@ -6,21 +6,13 @@ import PauseIcon from '../components/icons/PauseIcon.astro';
 import PlayIcon from '../components/icons/PlayIcon.astro';
 import StackIcon from '../components/icons/StackIcon.astro';
 import Frame from '../layouts/Frame.astro';
+import { stackMarquee } from '../lib/marquee';
 
 // One job per company, spanning its roles (listed newest first). Newest job first; it's shown
 // when the URL has no hash.
 const jobs = (await getCollection('career'))
-	.map((job) => ({ ...job, start: job.data.roles.at(-1)!.start, end: job.data.roles[0].end, ...marquee(job.data.stack) }))
+	.map((job) => ({ ...job, start: job.data.roles.at(-1)!.start, end: job.data.roles[0].end, ...stackMarquee(job.data.stack) }))
 	.sort((a, b) => b.start.getTime() - a.start.getTime());
-
-// On mobile a stack shows as one row of chips, scrolling as a marquee if it won't fit. CSS can't
-// tell when a row overflows, so estimate it here: about 7px a character at 14px, plus each chip's
-// padding, border and gap, against a phone's panel (about 300px). The duration keeps the speed
-// at about 40px a second whatever the length.
-function marquee(stack: string[]) {
-	const width = stack.reduce((total, tech) => total + tech.length * 7 + 28, 0);
-	return { scrolls: width > 300, duration: `${Math.round(width / 40)}s` };
-}
 
 const year = (date: Date) => date.getUTCFullYear();
 const years = ({ start, end }: { start: Date; end?: Date }) =>
