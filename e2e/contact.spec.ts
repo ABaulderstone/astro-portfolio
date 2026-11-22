@@ -20,6 +20,15 @@ test('the browser blocks an empty or invalid contact form, and the error shows a
   await form.getByLabel('Name').fill('Ada');
   await email.fill('ada@example.com');
   await form.getByLabel('Message').fill('Hello, this is a message.');
+  expect(await form.evaluate((el: HTMLFormElement) => el.checkValidity())).toBe(true);
+
+  // The mobile number is optional, but checked when given
+  const mobile = form.getByLabel('Mobile (optional)');
+  await mobile.fill('call me');
+  await mobile.blur();
+  await expect(form.getByText('Please enter a valid phone number.')).toBeVisible();
+  expect(await form.evaluate((el: HTMLFormElement) => el.checkValidity())).toBe(false);
+  await mobile.fill('+61 (0)400 000-000');
   await expect(emailError).toBeHidden();
   expect(await form.evaluate((el: HTMLFormElement) => el.checkValidity())).toBe(true);
 
@@ -62,11 +71,9 @@ test('on mobile the social links are icons along the bottom, named for screen re
   expect((await list.boundingBox())!.y).toBeGreaterThanOrEqual(formBox.y + formBox.height);
 });
 
-// The form fits its panel without scrolling at every desktop size the layout tests use
+// The form fits its panel without scrolling on large screens. With every field on its own line
+// it's too tall for a laptop, where it scrolls inside its panel instead
 for (const size of [
-  { width: 1024, height: 768 },
-  { width: 1280, height: 720 },
-  { width: 1440, height: 900 },
   { width: 1920, height: 1080 },
   { width: 2560, height: 1440 },
 ]) {
