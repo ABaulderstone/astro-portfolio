@@ -2,7 +2,17 @@
 title: This portfolio
 description: My portfolio site, a static Astro site with a pixel-art frame and almost no client JS, built with Claude Code and tested in CI for accessibility, SEO and layout on every page.
 date: 2026-11-22
-stack: [Astro, TypeScript, Tailwind CSS, Vitest, Playwright, axe, GitHub Actions, Claude Code]
+stack:
+  [
+    Astro,
+    TypeScript,
+    Tailwind CSS,
+    Vitest,
+    Playwright,
+    axe,
+    GitHub Actions,
+    Claude Code,
+  ]
 repo: https://github.com/ABaulderstone/astro-portfolio
 url: https://alexbaulderstone.com
 ---
@@ -13,7 +23,7 @@ I needed a new portfolio, and I had a second reason too. Agentic coding has gone
 
 ## Why Astro
 
-For years I've told students that rebuilding a portfolio in React is swatting a fly with a bazooka. A portfolio is mostly content, and static site generation is the right tool for that, so it was time to take my own advice. Astro builds every page to plain HTML at build time. Blog posts, projects and career history are Markdown files in typed content collections, and a page only ships JavaScript if I ask it to.
+For years I've told students that rebuilding a portfolio in React is overkill. A portfolio is mostly content, and static site generation is the right tool for that, so it was time to take my own advice. Astro builds every page to plain HTML at build time. Blog posts, projects and career history are Markdown files in typed content collections, and a page only ships JavaScript if I ask it to.
 
 Almost everything interactive here is HTML and CSS:
 
@@ -26,7 +36,7 @@ The only script on the site is the theme toggle. Here's the kind of CSS the care
 
 ```css
 /* Show a job's details when its timeline link puts it in the URL (/career/#coder-academy) */
-.career:has(#coder-academy:target) [data-job="coder-academy"] {
+.career:has(#coder-academy:target) [data-job='coder-academy'] {
   display: block;
 }
 ```
@@ -42,7 +52,7 @@ Accessibility and SEO are a big focus for me at the moment, so I wanted them che
 - the skip link, mobile menu and theme toggle are tested, including reaching the skip link with Tab and closing the menu with Escape
 - animations are tested again with reduced motion turned on
 
-Those tests have earned their keep. When I wrote my first real blog posts, axe caught a checklist whose checkboxes had no labels, and a code theme whose comments were too faint to read in dark mode.
+Those tests have been so useful. When I wrote my first real blog posts, axe caught a checklist whose checkboxes had no labels, and a code theme whose comments were too faint to read in dark mode.
 
 On the SEO side, every page has a title, a meta description and a canonical URL. Posts add Open Graph tags and `BlogPosting` structured data. There's a sitemap and an RSS feed, and pages that shouldn't be found, like the contact form's thank-you page, are kept out of both search results and the sitemap.
 
