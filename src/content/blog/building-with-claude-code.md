@@ -5,7 +5,7 @@ pubDate: 2026-11-22
 tags: [Claude Code, Agentic AI, Development, Astro]
 ---
 
-If you listen to people (or their agents) on LinkedIn you're probably used to being told several times a day something along the lines of **"If you're not using agents you're being left behind**. I've also seen a huge increase in Agentic AI and Claude Code specifically in Job Descriptions recently.
+If you listen to people (or their agents) on LinkedIn you're probably used to being told several times a day something along the lines of **"If you're not using agents you're being left behind"**. I've also seen a huge increase in Agentic AI and Claude Code specifically in Job Descriptions recently.
 
 ## Biting the bullet
 
