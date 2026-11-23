@@ -21,10 +21,10 @@ variable "from_email" {
   default     = "Alex Baulderstone <hello@alexbaulderstone.com>"
 }
 
-variable "github_repo" {
-  description = "The repo whose production environment may deploy (owner/name)"
+variable "github_subject" {
+  description = "How GitHub's OIDC tokens name the repo whose production environment may deploy: sub_claim_prefix from `gh api repos/OWNER/REPO/actions/oidc/customization/sub`. The repo uses immutable subjects, which include the owner's and repo's IDs, so a renamed or recreated repo can't take over the role"
   type        = string
-  default     = "ABaulderstone/astro-portfolio"
+  default     = "repo:ABaulderstone@46916203/astro-portfolio@1464148982"
 }
 
 variable "contact_concurrency" {
