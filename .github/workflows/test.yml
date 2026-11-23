@@ -4,6 +4,8 @@ on:
   pull_request:
   push:
     branches: [main]
+  # Run (and deploy) main from the Actions tab without a push
+  workflow_dispatch:
 
 # A newer push to the same branch cancels the run in progress
 concurrency:
@@ -47,14 +49,14 @@ jobs:
           path: playwright-report/
           retention-days: 14
 
-  # Ships main once both test jobs pass. The values are repository variables (from `terraform
-  # -chdir=infra output`), not environment ones, as a job's `if` can't see an environment's
-  # variables; until they're set, this is skipped. The production environment is what the deploy
-  # role trusts.
+  # Ships main once both test jobs pass, on a push or a manual run. The values are repository
+  # variables (from `terraform -chdir=infra output`), not environment ones, as a job's `if` can't
+  # see an environment's variables; until they're set, this is skipped. The production environment
+  # is what the deploy role trusts.
   deploy:
     name: Deploy
     needs: [unit, e2e]
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && vars.SITE_BUCKET != ''
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && vars.SITE_BUCKET != ''
     runs-on: ubuntu-latest
     environment: production
     permissions:
