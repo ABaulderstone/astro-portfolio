@@ -1,12 +1,18 @@
 ---
 title: This portfolio
-description: My portfolio site, a static Astro site with a pixel-art frame and almost no client JS, built with Claude Code and tested in CI for accessibility, SEO and layout on every page.
+description: My portfolio site, a static Astro site with almost no client JS, built with Claude Code. It's hosted on AWS with Terraform, the contact form is serverless, and every merge is tested and deployed by GitHub Actions.
 date: 2026-11-22
 stack:
   [
     Astro,
     TypeScript,
     Tailwind CSS,
+    AWS Lambda,
+    DynamoDB,
+    SES,
+    S3,
+    CloudFront,
+    Terraform,
     Vitest,
     Playwright,
     axe,
@@ -14,7 +20,7 @@ stack:
     Claude Code,
   ]
 repo: https://github.com/ABaulderstone/astro-portfolio
-url: https://www.alexbaulderstone.com/
+url: https://alexbaulderstone.com/
 ---
 
 ## Why build it
@@ -60,6 +66,16 @@ On the SEO side, every page has a title, a meta description and a canonical URL.
 
 Every page sits inside one frame that's exactly one screen tall. Rather than the page scrolling, each page divides the frame into panels and rearranges them for the screen size, with the panel lines drawing in when the page loads. Headings use Press Start 2P, a pixel font drawn on an 8px grid, so it's only ever used at multiples of 8px to keep it crisp.
 
-## What's next
+## Hosting and deployment
 
-The contact form currently posts to a small dev server that saves enquiries locally. The plan is to replace it with an AWS Lambda that stores each enquiry, emails the person who got in touch and emails me. The form won't need to change: it only needs a new URL.
+The site is just a folder of static files, so it lives in a private S3 bucket behind CloudFront. Everything in AWS is defined in Terraform: the bucket, the distribution and its certificate, the DNS records, the contact form's backend, and the role GitHub deploys with.
+
+Every URL here ends in a slash (`/about/`), but a private S3 bucket only serves `index.html` at the root. A small CloudFront Function adds it to each path, adds the slash when it's missing, and redirects `www` to the bare domain.
+
+When a pull request merges, GitHub Actions runs the unit and browser tests again, then builds the site, uploads it to S3, clears CloudFront's cache and updates the contact form's Lambda. GitHub signs in to AWS with OIDC, so there are no AWS keys sitting in the repo's secrets, and the role it gets can only do those few things.
+
+## The contact form
+
+The form is a plain HTML POST to an AWS Lambda. I wrote the handler before the Lambda existed, and it takes "somewhere to store enquiries" and "a way to send email" as arguments. In development those write to a JSON file and an outbox folder. In production they're DynamoDB and SES.
+
+Each enquiry is stored, then SES emails me and sends the person a short acknowledgement. A hidden honeypot field catches most bots, and the whole setup costs well under a dollar a month.
