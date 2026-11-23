@@ -8,6 +8,13 @@ set -euo pipefail
 : "${DISTRIBUTION_ID:?Set DISTRIBUTION_ID}"
 : "${CONTACT_FUNCTION:?Set CONTACT_FUNCTION}"
 
+# A build made without PUBLIC_CONTACT_ENDPOINT set falls back to .env.production, whose form posts
+# to the local dev endpoint: fine for npm run preview, broken for everyone else
+if grep -rlq --include='*.html' 'action="http://localhost' dist; then
+  echo "dist/ has a form posting to localhost. Rebuild with PUBLIC_CONTACT_ENDPOINT set (terraform -chdir=infra output -raw contact_endpoint)." >&2
+  exit 1
+fi
+
 # Hashed assets never change, so browsers keep them for a year. They go up first, so a new page is
 # never served before what it links to. Old ones aren't deleted, as cached pages may still use them.
 aws s3 sync dist/_astro "s3://$SITE_BUCKET/_astro" --cache-control "public, max-age=31536000, immutable"
