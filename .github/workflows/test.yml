@@ -46,3 +46,37 @@ jobs:
           name: playwright-report
           path: playwright-report/
           retention-days: 14
+
+  # Ships main once both test jobs pass. The values are repository variables (from `terraform
+  # -chdir=infra output`), not environment ones, as a job's `if` can't see an environment's
+  # variables; until they're set, this is skipped. The production environment is what the deploy
+  # role trusts.
+  deploy:
+    name: Deploy
+    needs: [unit, e2e]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && vars.SITE_BUCKET != ''
+    runs-on: ubuntu-latest
+    environment: production
+    permissions:
+      id-token: write # to swap GitHub's OIDC token for the deploy role (infra/github.tf)
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ap-southeast-2
+      - run: npm run build
+        env:
+          PUBLIC_CONTACT_ENDPOINT: ${{ vars.CONTACT_ENDPOINT }}
+      - run: npm run build:lambda
+      - run: scripts/deploy.sh
+        env:
+          SITE_BUCKET: ${{ vars.SITE_BUCKET }}
+          DISTRIBUTION_ID: ${{ vars.DISTRIBUTION_ID }}
+          CONTACT_FUNCTION: ${{ vars.CONTACT_FUNCTION }}

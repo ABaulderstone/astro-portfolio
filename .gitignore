@@ -1,5 +1,7 @@
 # build output
 dist/
+# the bundled contact Lambda (npm run build:lambda)
+.lambda/
 # generated types
 .astro/
 
@@ -30,3 +32,13 @@ blob-report/
 
 # contact form submissions captured in dev (functions/contact/)
 .dev-data/
+
+# personal notes (not committed)
+notes/
+
+# terraform (infra/): providers, local state and variable values
+infra/.terraform/
+infra/.build/
+*.tfstate
+*.tfstate.*
+*.tfvars

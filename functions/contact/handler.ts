@@ -1,5 +1,5 @@
-// Handles a contact form submission, whatever receives it: the dev server (dev-server.ts) now,
-// a Lambda later. Each passes in where enquiries are stored and how email is sent, and turns the
+// Handles a contact form submission, whatever receives it: the dev server (dev-server.ts) or the
+// Lambda (lambda.ts). Each passes in where enquiries are stored and how email is sent, and turns the
 // result into its own response. The form is a plain HTML POST, so the answer is always a 303 to
 // a page on the site: the thank-you page, or the error page.
 import { type Enquiry, parseEnquiry } from '../../src/lib/enquiry.ts';
@@ -12,6 +12,8 @@ export interface Email {
   to: string;
   subject: string;
   text: string;
+  /** Where a reply goes, if not to the sender */
+  replyTo?: string;
 }
 
 export interface Mailer {
@@ -34,21 +36,25 @@ export interface ContactResponse {
   location: string;
 }
 
-/** The reply to the person who got in touch */
+/**
+ * The reply to the person who got in touch. It doesn't repeat their message: anyone can put
+ * someone else's address in the form, and the site shouldn't deliver their text to a stranger.
+ */
 export function acknowledgement(enquiry: Enquiry): Email {
   return {
     to: enquiry.email,
     subject: 'Thanks for getting in touch',
-    text: `Hi ${enquiry.name},\n\nThanks for your message. I'll get back to you shortly.\n\nAlex\n\n---\nYou wrote:\n\n${enquiry.message}\n`,
+    text: `Hi ${enquiry.name},\n\nThanks for your message. I'll get back to you shortly.\n\nAlex\n`,
   };
 }
 
-/** The note to the site's owner */
+/** The note to the site's owner, which they can answer by replying */
 export function notification(enquiry: Enquiry, ownerEmail: string): Email {
   const details = [`Name: ${enquiry.name}`, `Email: ${enquiry.email}`, enquiry.mobile && `Mobile: ${enquiry.mobile}`, `Received: ${enquiry.receivedAt}`];
   return {
     to: ownerEmail,
     subject: `New enquiry from ${enquiry.name}`,
+    replyTo: enquiry.email,
     text: `${details.filter(Boolean).join('\n')}\n\n${enquiry.message}\n`,
   };
 }

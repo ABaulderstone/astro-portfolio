@@ -1,0 +1,17 @@
+---
+import HomeIcon from '../components/icons/HomeIcon.astro';
+import Frame from '../layouts/Frame.astro';
+---
+<!-- Builds to /404.html, which CloudFront serves for any path that doesn't exist (infra/site.tf).
+     Astro leaves it out of the sitemap itself. -->
+<Frame title="Page not found | Alex Baulderstone" description="The page you were looking for on Alex Baulderstone's site doesn't exist or has moved.">
+	<meta name="robots" content="noindex" slot="head" />
+	<div class="flex flex-1 flex-col items-center justify-center text-center">
+		<h1 class="text-2xl leading-normal md:text-[2rem]">Page not found</h1>
+		<p class="mt-6 max-w-[60ch] lg:text-fluid">Sorry, there's nothing here. The page may have moved, or the link may be wrong.</p>
+		<a href="/" class="mt-8 flex min-h-11 items-center gap-2 font-heading text-base hover:text-ember-600 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ember-500 dark:hover:text-ember-400">
+			<HomeIcon class="size-6 shrink-0" />
+			Back to home
+		</a>
+	</div>
+</Frame>

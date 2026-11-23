@@ -30,6 +30,15 @@ describe('handleContact', () => {
     expect(notification.subject).toBe('New enquiry from Ada');
     expect(notification.text).toContain('Mobile: 0400 000 000');
     expect(notification.text).toContain(valid.message);
+    expect(notification.replyTo).toBe('ada@example.com');
+  });
+
+  it("doesn't repeat the message back in the acknowledgement", async () => {
+    const { deps, sent } = fakes();
+    await handleContact(form(valid), deps);
+    const acknowledgement = sent.find((email) => email.to === 'ada@example.com')!;
+    expect(acknowledgement.text).toContain('Hi Ada');
+    expect(acknowledgement.text).not.toContain(valid.message);
   });
 
   it('redirects an invalid enquiry to the error page without storing or emailing it', async () => {
