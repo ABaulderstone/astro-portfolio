@@ -33,11 +33,11 @@ export function jsonFileStore(dir: string): EnquiryStore {
 
 export function outboxMailer(dir: string): Mailer {
   return {
-    async send({ to, subject, text }) {
+    async send({ to, subject, text, replyTo }) {
       const outbox = join(dir, 'outbox');
       await mkdir(outbox, { recursive: true });
       const file = join(outbox, `${new Date().toISOString().replace(/[:.]/g, '-')}-${to}.txt`);
-      await writeFile(file, `To: ${to}\nSubject: ${subject}\n\n${text}`);
+      await writeFile(file, `To: ${to}\n${replyTo ? `Reply-To: ${replyTo}\n` : ''}Subject: ${subject}\n\n${text}`);
       console.log(`[contact] email to ${to}: ${subject}`);
     },
   };
