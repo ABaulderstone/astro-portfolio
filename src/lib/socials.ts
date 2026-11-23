@@ -2,6 +2,9 @@
 
 export const socials = [
   { label: 'GitHub', href: 'https://github.com/ABaulderstone' },
-  { label: 'LinkedIn', href: 'https://www.linkedin.com/in/alexbaulderstone/' },
-  { label: 'Instagram', href: 'https://www.instagram.com/alexbaulderstone/' },
+  {
+    label: 'LinkedIn',
+    href: 'https://www.linkedin.com/in/alex-baulderstone-08b5ba41/',
+  },
+  { label: 'Instagram', href: 'https://www.instagram.com/robotfaceemoji/' },
 ] as const;
