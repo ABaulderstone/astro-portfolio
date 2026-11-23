@@ -42,12 +42,12 @@ resource "aws_route53_record" "mail_from_spf" {
   records = ["v=spf1 include:amazonses.com ~all"]
 }
 
-# Monitor-only to start. Add rua=mailto:... once the domain receives email, and tighten to
-# p=quarantine after a few weeks of clean reports.
+# Monitor-only to start: mail providers send daily reports to hello@ (forwarded by ImprovMX,
+# mail.tf). Tighten to p=quarantine after a few weeks of reports showing everything passing.
 resource "aws_route53_record" "dmarc" {
   zone_id = data.aws_route53_zone.main.zone_id
   name    = "_dmarc.${var.domain}"
   type    = "TXT"
   ttl     = 1800
-  records = ["v=DMARC1; p=none"]
+  records = ["v=DMARC1; p=none; rua=mailto:hello@${var.domain}"]
 }
