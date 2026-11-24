@@ -17,7 +17,10 @@ test('the panel lines draw in and end at full size', async ({ page }) => {
   expect(animations.length).toBeGreaterThan(0);
   for (const name of animations) expect(name).toMatch(/^draw-[xy]$/);
 
-  await page.evaluate(() => Promise.all(document.getAnimations().map((a) => a.finished)));
+  // Skipping endless animations (the mobile now playing marquee), which never finish
+  await page.evaluate(() =>
+    Promise.all(document.getAnimations().filter((a) => a.effect?.getTiming().iterations !== Infinity).map((a) => a.finished)),
+  );
   const transforms = await page.evaluate(() =>
     [...document.querySelectorAll('.panels > *')].flatMap((el) =>
       ['::before', '::after'].map((pseudo) => getComputedStyle(el, pseudo)).filter((s) => s.content !== 'none').map((s) => s.transform),

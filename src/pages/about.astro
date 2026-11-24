@@ -1,11 +1,22 @@
 ---
 import HeadphonesIcon from '../components/icons/HeadphonesIcon.astro';
 import MapPinIcon from '../components/icons/MapPinIcon.astro';
+import PauseIcon from '../components/icons/PauseIcon.astro';
+import PlayIcon from '../components/icons/PlayIcon.astro';
 import Frame from '../layouts/Frame.astro';
+import { textMarquee } from '../lib/marquee';
+import { nowPlaying, nowPlayingLine } from '../lib/now-playing';
+
+// On mobile now playing is one line, scrolling as a marquee if it won't fit
+const { scrolls, duration } = textMarquee(nowPlayingLine(nowPlaying));
+const copies = scrolls ? [false, true] : [false];
+const linkClass =
+	'text-nebula-600 underline underline-offset-4 hover:text-ember-600 focus-visible:outline-2 focus-visible:outline-ember-500 dark:text-phosphor-300 dark:hover:text-ember-400';
 ---
 <Frame title="About | Alex Baulderstone" description="Alex Baulderstone is a full-stack software engineer in Adelaide, building web apps and internal tools with Java, Spring Boot, React and TypeScript." panels>
 	<!--
-		Mobile: one column, with section 3 taking the spare height. Now playing is hidden there.
+		Mobile: one column, with section 3 taking the spare height and now playing below it, on one
+		line that scrolls as a marquee when it won't fit (with a pause button; still under reduced motion).
 		From lg the bio is vertically centred in its panel.
 		Desktop: a title bar, then a narrow left column (1, 2, 4) beside section 3.
 		From lg, location and currently listening share a minimum height (just over the listening
@@ -17,7 +28,7 @@ import Frame from '../layouts/Frame.astro';
 		Lines draw in order: mobile top to bottom; desktop title, divider, then the left column's
 		lines growing out of the divider.
 	-->
-	<div class="panels grid-rows-[auto_auto_auto_1fr] md:grid-cols-[minmax(18rem,1fr)_3fr] lg:grid-cols-[minmax(21rem,1fr)_3fr] md:grid-rows-[auto_1fr_1fr_auto] lg:grid-rows-[auto_1fr_minmax(11rem,auto)_minmax(11rem,auto)] 3xl:grid-rows-[auto_1fr_minmax(17rem,auto)_minmax(17rem,auto)] short:lg:grid-rows-[auto_auto_1fr_1fr]">
+	<div class="panels grid-rows-[auto_auto_auto_1fr_auto] md:grid-cols-[minmax(18rem,1fr)_3fr] lg:grid-cols-[minmax(21rem,1fr)_3fr] md:grid-rows-[auto_1fr_1fr_auto] lg:grid-rows-[auto_1fr_minmax(11rem,auto)_minmax(11rem,auto)] 3xl:grid-rows-[auto_1fr_minmax(17rem,auto)_minmax(17rem,auto)] short:lg:grid-rows-[auto_auto_1fr_1fr]">
 		<div class="edge-b p-5 md:col-span-2 md:p-8 short:md:py-4">
 			<h1 class="text-center text-2xl leading-normal md:text-[2rem]">About</h1>
 		</div>
@@ -26,14 +37,14 @@ import Frame from '../layouts/Frame.astro';
 			     From lg, 12ch (every Press Start 2P glyph is 1ch wide) keeps it on two lines. -->
 			<h2 class="text-base leading-normal lg:max-w-[12ch] lg:text-2xl 3xl:text-[2rem]">Alex Baulderstone</h2>
 		</section>
-		<section class="edge-b pattern-dots pattern-on-hover p-5 [--edge-delay:300ms] md:p-8 short:md:p-5 md:[--edge-delay:900ms] md:[--edge-origin:right]">
+		<section class="edge-b pattern-dots pattern-on-hover px-5 py-3 [--edge-delay:300ms] md:p-8 short:md:p-5 md:[--edge-delay:900ms] md:[--edge-origin:right]">
 			<h2 class="flex items-center gap-2 text-base leading-normal 3xl:text-2xl">
 				<MapPinIcon class="size-6 shrink-0 text-nebula-600 3xl:size-8 dark:text-phosphor-400" />
 				Location
 			</h2>
-			<p class="mt-3 lg:text-fluid">Adelaide, Australia</p>
+			<p class="mt-1 md:mt-3 lg:text-fluid">Adelaide, Australia</p>
 		</section>
-		<section class="min-h-0 md:col-start-2 md:row-span-3 md:row-start-2 md:edge-l md:[--edge-delay:400ms]">
+		<section class="min-h-0 max-md:edge-b max-md:[--edge-delay:450ms] md:col-start-2 md:row-span-3 md:row-start-2 md:edge-l md:[--edge-delay:400ms]">
 			<!-- Scrolls when the text outgrows the panel. The scrolling is on this wrapper, not the
 			     section, which would clip the section's edge line. Focusable so keyboard users can
 			     scroll it too. scroll-shadow tints the edge that has more text, since iOS hides
@@ -66,15 +77,47 @@ import Frame from '../layouts/Frame.astro';
 			</div>
 			</div>
 		</section>
-		<section class="p-5 max-md:hidden md:p-8 short:md:p-5">
-			<h2 class="flex items-center gap-2 text-base leading-normal 3xl:text-2xl">
-				<HeadphonesIcon class="size-6 shrink-0 text-nebula-600 3xl:size-8 dark:text-phosphor-400" />
-				Now playing
-			</h2>
-			<p class="mt-3 lg:text-fluid">
-				<span class="font-bold">Podcast Name</span><br />
-				Episode 42: An episode title goes here
-			</p>
+		<!-- min-w-0 so the marquee track (wider than the screen) can't widen the grid -->
+		<section class="now-playing min-w-0 px-5 py-3 md:p-8 short:md:p-5">
+			<div class="flex items-center justify-between gap-2">
+				<h2 class="flex items-center gap-2 text-base leading-normal 3xl:text-2xl">
+					<HeadphonesIcon class="size-6 shrink-0 text-nebula-600 3xl:size-8 dark:text-phosphor-400" />
+					Now playing
+				</h2>
+				{scrolls && (
+					<div class="-my-3 md:hidden motion-reduce:hidden">
+						<!-- Pauses the marquee (WCAG 2.2.2). A checkbox, so it needs no JS. -->
+						<label class="relative flex size-11 cursor-pointer items-center justify-center text-nebula-600 hover:text-ember-600 dark:text-phosphor-400 dark:hover:text-ember-400">
+							<input type="checkbox" id="pause-listening" class="peer sr-only" />
+							<span class="sr-only">Pause the now playing scrolling</span>
+							<PauseIcon class="size-6 peer-checked:hidden" />
+							<PlayIcon class="hidden size-6 peer-checked:block" />
+							<span class="pointer-events-none absolute size-11 peer-focus-visible:outline-2 peer-focus-visible:outline-ember-500" aria-hidden="true"></span>
+						</label>
+					</div>
+				)}
+			</div>
+			<!-- From md the show and episode sit on two lines. On mobile they share one, and a long
+			     one's track holds it twice (the copy hidden from screen readers, its link out of the
+			     tab order) so the marquee loops seamlessly; it pauses on hover, focus or the button. -->
+			<div class:list={['mt-1 md:mt-3', scrolls && 'motion-safe:max-md:overflow-hidden motion-safe:max-md:mask-x-from-85%']}>
+				<div
+					data-now-playing
+					class:list={[scrolls && 'motion-safe:max-md:marquee motion-safe:max-md:flex hover:[animation-play-state:paused] focus-within:[animation-play-state:paused] in-[.now-playing:has(#pause-listening:checked)]:[animation-play-state:paused]']}
+					style={scrolls ? `--marquee-duration: ${duration}` : undefined}
+				>
+					{copies.map((copy) => (
+						<p
+							class:list={['lg:text-fluid', scrolls && 'motion-safe:max-md:pr-8 motion-safe:max-md:whitespace-nowrap', copy && 'hidden motion-safe:max-md:block']}
+							aria-hidden={copy ? 'true' : undefined}
+						>
+							<a href={nowPlaying.showUrl} class:list={[linkClass, 'font-bold']} tabindex={copy ? -1 : undefined}>{nowPlaying.show}</a>
+							<span class="md:hidden"> · </span>
+							<a href={nowPlaying.episodeUrl} class:list={[linkClass, 'md:block md:w-fit']} tabindex={copy ? -1 : undefined}>{nowPlaying.episode}</a>
+						</p>
+					))}
+				</div>
+			</div>
 		</section>
 	</div>
 </Frame>
