@@ -78,4 +78,4 @@ When a pull request merges, GitHub Actions runs the unit and browser tests again
 
 The form is a plain HTML POST to an AWS Lambda. I wrote the handler before the Lambda existed, and it takes "somewhere to store enquiries" and "a way to send email" as arguments. In development those write to a JSON file and an outbox folder. In production they're DynamoDB and SES.
 
-Each enquiry is stored, then SES emails me and sends the person a short acknowledgement. A hidden honeypot field catches most bots, and the whole setup costs well under a dollar a month.
+Each enquiry is stored, then SES emails me. It used to send the person an acknowledgement too, until a bot started filling the form with strangers' email addresses, and every acknowledgement became spam sent from my domain. Now the thank-you page is the acknowledgement. Spam gets past a hidden honeypot field easily enough, so the handler also drops posts that didn't come from the site's own page and messages that match the patterns real spam showed: wrapped in quotes, or full of links. Bots still get the thank-you page, so they can't tell they were caught. The whole setup costs well under a dollar a month.
