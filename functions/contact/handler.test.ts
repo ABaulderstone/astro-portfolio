@@ -17,28 +17,22 @@ function fakes(overrides: Partial<ContactDeps> = {}) {
   return { deps, saved, sent };
 }
 
-const form = (fields: Record<string, string>) => new URLSearchParams(fields).toString();
+const origin = 'https://example.com';
+const form = (fields: Record<string, string>) => ({ body: new URLSearchParams(fields).toString(), origin });
 const valid = { name: 'Ada', email: 'ada@example.com', mobile: '0400 000 000', message: 'Hello, this is a message.' };
 
 describe('handleContact', () => {
-  it('stores a valid enquiry, emails both people and redirects to the thank-you page', async () => {
+  it('stores a valid enquiry, emails only the owner and redirects to the thank-you page', async () => {
     const { deps, saved, sent } = fakes();
     expect(await handleContact(form(valid), deps)).toEqual({ status: 303, location: 'https://example.com/contact/thanks/' });
     expect(saved).toEqual([expect.objectContaining(valid)]);
-    expect(sent.map((email) => email.to).sort()).toEqual(['ada@example.com', 'owner@example.com']);
-    const notification = sent.find((email) => email.to === 'owner@example.com')!;
+    // Nothing to the sender: a bot's address is often a stranger's
+    expect(sent.map((email) => email.to)).toEqual(['owner@example.com']);
+    const notification = sent[0];
     expect(notification.subject).toBe('New enquiry from Ada');
     expect(notification.text).toContain('Mobile: 0400 000 000');
     expect(notification.text).toContain(valid.message);
     expect(notification.replyTo).toBe('ada@example.com');
-  });
-
-  it("doesn't repeat the message back in the acknowledgement", async () => {
-    const { deps, sent } = fakes();
-    await handleContact(form(valid), deps);
-    const acknowledgement = sent.find((email) => email.to === 'ada@example.com')!;
-    expect(acknowledgement.text).toContain('Hi Ada');
-    expect(acknowledgement.text).not.toContain(valid.message);
   });
 
   it('redirects an invalid enquiry to the error page without storing or emailing it', async () => {
@@ -54,6 +48,32 @@ describe('handleContact', () => {
     expect((await handleContact(form({ ...valid, website: 'https://spam.example' }), deps)).location).toBe('https://example.com/contact/thanks/');
     expect(saved).toEqual([]);
     expect(sent).toEqual([]);
+  });
+
+  it('thanks a message the spam rules catch, but drops it and logs why', async () => {
+    const { deps, saved, sent } = fakes();
+    const spam = { name: 'Robertcar', email: 'someone@example.com', mobile: '83961259945', message: '"Hi, I wanted to know your price."' };
+    expect((await handleContact(form(spam), deps)).location).toBe('https://example.com/contact/thanks/');
+    expect(saved).toEqual([]);
+    expect(sent).toEqual([]);
+    expect(deps.log).toHaveBeenCalledWith('Dropped spam: message is wrapped in quotes');
+  });
+
+  it.each([
+    ['no Origin header', undefined, 'no origin'],
+    ['another site', 'https://spam.example', 'https://spam.example'],
+    ['the right host over http', 'http://example.com', 'http://example.com'],
+  ])('thanks a post from %s, but drops it', async (_, badOrigin, logged) => {
+    const { deps, saved, sent } = fakes();
+    expect((await handleContact({ ...form(valid), origin: badOrigin }, deps)).location).toBe('https://example.com/contact/thanks/');
+    expect(saved).toEqual([]);
+    expect(sent).toEqual([]);
+    expect(deps.log).toHaveBeenCalledWith(`Dropped spam: posted from ${logged}`);
+  });
+
+  it('still sends an invalid post with no Origin to the error page', async () => {
+    const { deps } = fakes();
+    expect((await handleContact({ ...form({ ...valid, email: 'nope' }), origin: undefined }, deps)).location).toBe('https://example.com/contact/error/');
   });
 
   it('redirects to the error page when storing fails, and sends no email', async () => {

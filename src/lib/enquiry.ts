@@ -28,8 +28,26 @@ export interface Enquiry {
 
 export type EnquiryResult =
   | { ok: true; spam: false; enquiry: Enquiry }
-  | { ok: true; spam: true }
+  | { ok: true; spam: true; reason: string }
   | { ok: false; errors: string[] };
+
+// Spam looks like this in practice (from the form's own submissions): a bot that sends "I wanted to
+// know your price" in a different language each time, its message wrapped in quotes, and sales
+// pitches stuffed with links. Real messages rarely do any of these.
+const quoted = /^["“].*["”]$/s;
+const link = /https?:\/\/|www\./i;
+const links = new RegExp(link.source, 'gi');
+const markup = /\[url|<a\s/i;
+/** A message with this many links or more is spam */
+export const MAX_LINKS = 2;
+
+/** Why a (valid) enquiry looks like spam, or undefined if it doesn't */
+function spamReason({ name, message }: { name: string; message: string }): string | undefined {
+  if (quoted.test(message)) return 'message is wrapped in quotes';
+  if (markup.test(message)) return 'message has link markup';
+  if ((message.match(links)?.length ?? 0) >= MAX_LINKS) return `message has ${MAX_LINKS} or more links`;
+  if (link.test(name)) return 'name has a link';
+}
 
 const mobilePattern = new RegExp(`^(?:${MOBILE_PATTERN})$`, 'v');
 // As lenient as the browser's type="email": something, an @, something
@@ -37,7 +55,7 @@ const emailPattern = /^[^\s@]+@[^\s@]+$/;
 
 /** Checks a submitted form's fields with the same rules the browser applies */
 export function parseEnquiry(fields: Record<string, string | undefined>, now = new Date()): EnquiryResult {
-  if (fields[HONEYPOT_FIELD]?.trim()) return { ok: true, spam: true };
+  if (fields[HONEYPOT_FIELD]?.trim()) return { ok: true, spam: true, reason: 'honeypot filled' };
 
   const name = fields.name?.trim() ?? '';
   const email = fields.email?.trim() ?? '';
@@ -53,6 +71,9 @@ export function parseEnquiry(fields: Record<string, string | undefined>, now = n
     if (value.length > MAX_LENGTHS[field as keyof typeof MAX_LENGTHS]) errors.push(`${field} is too long`);
   }
   if (errors.length) return { ok: false, errors };
+
+  const reason = spamReason({ name, message });
+  if (reason) return { ok: true, spam: true, reason };
 
   return { ok: true, spam: false, enquiry: { name, email, ...(mobile && { mobile }), message, receivedAt: now.toISOString() } };
 }

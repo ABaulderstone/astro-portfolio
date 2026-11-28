@@ -14,6 +14,7 @@ function recorder() {
 const body = new URLSearchParams({ name: 'Ada', email: 'ada@example.com', message: 'Hello, this is a message.' }).toString();
 const event = (overrides: Partial<FunctionUrlEvent> = {}): FunctionUrlEvent => ({
   body,
+  headers: { origin: 'https://example.com' },
   isBase64Encoded: false,
   requestContext: { http: { method: 'POST' } },
   ...overrides,
@@ -55,6 +56,13 @@ describe('createHandler', () => {
 
   it('sends an invalid POST to the error page', async () => {
     expect((await createHandler(deps())(event({ body: 'name=' }))).headers.Location).toBe('https://example.com/contact/error/');
+  });
+
+  it("thanks a POST without the site's Origin, but stores nothing", async () => {
+    const save = vi.fn();
+    const result = await createHandler({ ...deps(), store: { save } })(event({ headers: {} }));
+    expect(result.headers.Location).toBe('https://example.com/contact/thanks/');
+    expect(save).not.toHaveBeenCalled();
   });
 
   it('sends anything but a POST to the form', async () => {

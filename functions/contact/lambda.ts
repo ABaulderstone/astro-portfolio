@@ -11,6 +11,8 @@ import { type ContactDeps, type EnquiryStore, handleContact, type Mailer } from 
 /** The parts of a function URL event this reads */
 export interface FunctionUrlEvent {
   body?: string;
+  /** Lower-cased names */
+  headers?: Record<string, string | undefined>;
   isBase64Encoded: boolean;
   requestContext: { http: { method: string } };
 }
@@ -60,7 +62,7 @@ export function createHandler(deps: ContactDeps) {
   return async (event: FunctionUrlEvent): Promise<FunctionUrlResult> => {
     // Someone opening the endpoint in a browser: send them to the form
     if (event.requestContext.http.method !== 'POST') return { statusCode: 303, headers: { Location: `${deps.siteUrl}/contact/` } };
-    const { status, location } = await handleContact(decodeBody(event), deps);
+    const { status, location } = await handleContact({ body: decodeBody(event), origin: event.headers?.origin }, deps);
     return { statusCode: status, headers: { Location: location } };
   };
 }

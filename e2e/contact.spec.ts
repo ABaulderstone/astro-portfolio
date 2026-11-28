@@ -47,7 +47,11 @@ test('the browser blocks an invalid contact form, then a valid one is stored and
 
 test('the endpoint sends a form that fails its checks to the error page, which links back', async ({ page, request }) => {
   // Straight to the endpoint, as the browser wouldn't send it
-  const response = await request.post(contactEndpoint, { form: { name: 'Ada', email: 'not-an-email', message: 'Hi' }, maxRedirects: 0 });
+  const response = await request.post(contactEndpoint, {
+    form: { name: 'Ada', email: 'not-an-email', message: 'Hi' },
+    headers: { Origin: 'http://localhost:4322' },
+    maxRedirects: 0,
+  });
   expect(response.status()).toBe(303);
   expect(response.headers().location).toBe('http://localhost:4322/contact/error/');
 

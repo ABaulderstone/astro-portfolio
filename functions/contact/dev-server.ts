@@ -2,7 +2,7 @@
 // `astro dev` starts it (the contactDevServer integration in astro.config.mjs), or run it alone
 // with `npm run dev:contact`. It's on its own port, so it's cross-origin like the real endpoint.
 //
-//   POST /contact/  takes the form, stores it, "emails" both people, then 303s back to the site
+//   POST /contact/  takes the form, stores it, "emails" the owner, then 303s back to the site
 //   GET  /contact/  lists the stored enquiries as JSON
 //
 // Settings: CONTACT_PORT (8787), CONTACT_DATA_DIR (.dev-data), SITE_URL (http://localhost:4321)
@@ -36,7 +36,7 @@ const server = createServer(async (req, res) => {
     body += chunk;
     if (body.length > maxBody) return res.writeHead(413).end();
   }
-  const { status, location } = await handleContact(body, deps);
+  const { status, location } = await handleContact({ body, origin: req.headers.origin }, deps);
   console.log(`[contact] POST /contact/ -> ${status} ${location}`);
   res.writeHead(status, { Location: location }).end();
 });
