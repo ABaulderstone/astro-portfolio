@@ -40,6 +40,9 @@ const links = new RegExp(link.source, 'gi');
 const markup = /\[url|<a\s/i;
 /** A message with this many links or more is spam */
 export const MAX_LINKS = 2;
+/** Names that only ever send spam, matched in any case against the whole name */
+export const BLOCKED_NAMES = ['robertcar'];
+const blockedNames = new Set(BLOCKED_NAMES.map((n) => n.toLowerCase()));
 
 /** Why a (valid) enquiry looks like spam, or undefined if it doesn't */
 function spamReason({ name, message }: { name: string; message: string }): string | undefined {
@@ -47,6 +50,7 @@ function spamReason({ name, message }: { name: string; message: string }): strin
   if (markup.test(message)) return 'message has link markup';
   if ((message.match(links)?.length ?? 0) >= MAX_LINKS) return `message has ${MAX_LINKS} or more links`;
   if (link.test(name)) return 'name has a link';
+  if (blockedNames.has(name.toLowerCase())) return 'name is blocked';
 }
 
 const mobilePattern = new RegExp(`^(?:${MOBILE_PATTERN})$`, 'v');
