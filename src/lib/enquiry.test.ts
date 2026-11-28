@@ -55,6 +55,8 @@ describe('parseEnquiry', () => {
     ['BBCode links', { message: 'Cheap watches [url=https://spam.example]here[/url]' }, 'message has link markup'],
     ['HTML links', { message: 'Cheap watches <a href="https://spam.example">here</a>' }, 'message has link markup'],
     ['a link for a name', { name: 'www.spam.example' }, 'name has a link'],
+    ['the price bot without its quotes', { name: 'Robertcar', message: 'Hi, I wanted to know your price.' }, 'name is blocked'],
+    ['a blocked name in another case', { name: ' ROBERTCAR ' }, 'name is blocked'],
   ])('flags %s as spam', (_, change, reason) => {
     expect(parseEnquiry({ ...valid, ...change })).toEqual({ ok: true, spam: true, reason });
   });
@@ -66,6 +68,10 @@ describe('parseEnquiry', () => {
     ['a message that only starts with a quote', '"Ship it" is my motto too. Are you free for a chat?'],
   ])("doesn't flag %s", (_, message) => {
     expect(parseEnquiry({ ...valid, message })).toMatchObject({ ok: true, spam: false });
+  });
+
+  it("doesn't flag a name that only contains a blocked one", () => {
+    expect(parseEnquiry({ ...valid, name: 'Robertcarson' })).toMatchObject({ ok: true, spam: false });
   });
 
   it('checks the rules every time, as a stateful regex would skip every other match', () => {
